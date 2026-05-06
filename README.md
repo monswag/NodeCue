@@ -9,7 +9,7 @@ The current alpha is intentionally narrow:
 - built-in Geometry Nodes skill snapshot: `nodecue/skills/geometry-nodes/`
 - OpenRouter / OpenAI-compatible model configuration
 
-The Geometry Nodes skill is also maintained as a standalone package in `nodecue-geometry-nodes-skill`. This repository vendors a copy so the Blender add-on works out of the box.
+The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-node-skills` package. This repository vendors a copy so the Blender add-on works out of the box.
 
 ## Quick Start
 

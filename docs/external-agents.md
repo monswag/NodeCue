@@ -4,7 +4,7 @@ NodeCue is not required for external agents to control Blender.
 
 Recommended external workflow:
 
-1. Install the standalone `nodecue-geometry-nodes-skill`.
+1. Install the standalone `nodecue-blender-node-skills` package.
 2. Connect the agent to Blender through the official Blender MCP.
 3. Let the agent read the skill and execute Blender Python through MCP.
 
