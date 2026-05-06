@@ -1,0 +1,156 @@
+version: 1
+
+scenarios:
+  - id: terrain_noise_displacement
+    mode: generate
+    prompt: "用噪声把平面变成起伏的地形，并用 frame 标注噪声高度控制部分"
+    reference: "advanced_rocks_scattering.file/Ground Displacement"
+    skill_files:
+      - "patterns/surface-displacement.md"
+      - "rules/node-role-catalog.md"
+      - "rules/readback-repair.md"
+    required_bl_idnames:
+      - GeometryNodeSetPosition
+      - ShaderNodeTexNoise
+    required_relationships:
+      - geometry_output
+      - displacement_offset
+      - field_to_consumer
+      - teaching_frame_or_explanation
+    manual_review_fields:
+      - "是否能看出噪声高度控制了地形起伏"
+      - "解释是否区分了 field producer 和 Set Position consumer"
+
+  - id: density_grass_scatter
+    mode: generate
+    prompt: "在一块草地表面生成草叶散布，带密度遮罩和随机缩放，并解释密度控制逻辑"
+    reference: "Cabin/Tall Grass"
+    skill_files:
+      - "patterns/density-controlled-scatter.md"
+      - "patterns/distribution-archetype.md"
+      - "rules/node-role-catalog.md"
+    required_bl_idnames:
+      - GeometryNodeDistributePointsOnFaces
+      - GeometryNodeInstanceOnPoints
+    required_relationships:
+      - geometry_output
+      - scatter_instances
+      - field_to_consumer
+      - teaching_frame_or_explanation
+    manual_review_fields:
+      - "草叶是否来自点分布再 instancing，而不是复制一堆 mesh"
+      - "密度遮罩是否连接到 Selection 或 Density Factor"
+
+  - id: rocks_on_terrain
+    mode: generate
+    prompt: "在地形表面随机分布石头，大小随机，贴合地面法线"
+    reference: "advanced_rocks_scattering.file/Rock Scattering"
+    skill_files:
+      - "patterns/distribution-archetype.md"
+      - "patterns/density-controlled-scatter.md"
+      - "rules/node-role-catalog.md"
+    required_bl_idnames:
+      - GeometryNodeDistributePointsOnFaces
+      - GeometryNodeInstanceOnPoints
+    required_relationships:
+      - geometry_output
+      - scatter_instances
+      - field_to_consumer
+    manual_review_fields:
+      - "石头是否以 instance 方式分布"
+      - "随机缩放/旋转是否在 instancing 阶段发生"
+
+  - id: curve_pipe_or_wall
+    mode: generate
+    prompt: "沿一条曲线生成一段弧形管道或墙体，并保留曲线到 mesh 的教学标注"
+    reference: "Cabin/Arc Wall"
+    skill_files:
+      - "rules/curve-primitives.md"
+      - "rules/curve-operations.md"
+      - "rules/readback-repair.md"
+    required_bl_idnames:
+      - GeometryNodeCurveToMesh
+    required_relationships:
+      - geometry_output
+      - curve_to_mesh
+      - teaching_frame_or_explanation
+    manual_review_fields:
+      - "是否使用曲线骨架加 profile/mesh 转换，而不是直接堆 primitives"
+      - "解释是否说明曲线表示到 mesh 表示的转换"
+
+  - id: modular_cabin
+    mode: generate
+    prompt: "把小木屋拆成屋顶、墙体、地面几个独立模块，再用 Join Geometry 拼装成整体"
+    reference: "Cabin/13 Cabin"
+    skill_files:
+      - "patterns/stitching-archetype.md"
+      - "patterns/material-attribute-handoff.md"
+      - "rules/node-role-catalog.md"
+    required_bl_idnames:
+      - GeometryNodeJoinGeometry
+    required_relationships:
+      - geometry_output
+      - composition_join
+      - teaching_frame_or_explanation
+    manual_review_fields:
+      - "模块边界是否清楚，而不是全部 inline 成一条链"
+      - "Join Geometry 是否用于保留多个部件"
+
+  - id: material_mask_handoff
+    mode: modify
+    prompt: "给当前节点组增加一个石头/地面材质分区 mask，并把 mask 用材质索引或命名属性传递到后续节点"
+    reference: "Cabin/Rocks"
+    skill_files:
+      - "patterns/material-attribute-handoff.md"
+      - "rules/attribute.md"
+      - "rules/geometry-read.md"
+    required_bl_idnames:
+      - GeometryNodeSetMaterialIndex
+    required_relationships:
+      - geometry_output
+      - material_handoff
+      - field_to_consumer
+    manual_review_fields:
+      - "是否能读回材质/属性 handoff 节点"
+      - "是否避免把 Color Ramp 当作几何属性存储"
+
+  - id: repeat_selection_expand
+    mode: generate
+    prompt: "做一个可以把选择区域向外扩展 N 圈的 Geometry Nodes 节点组，并解释 domain hop"
+    reference: "geo_node_selection/Expand Selections"
+    skill_files:
+      - "patterns/repeat-zone-selection-expansion.md"
+      - "rules/utilities-field.md"
+      - "rules/utilities-misc.md"
+    required_bl_idnames:
+      - GeometryNodeRepeatInput
+      - GeometryNodeRepeatOutput
+      - GeometryNodeFieldOnDomain
+    required_relationships:
+      - geometry_output
+      - repeat_zone
+      - field_to_consumer
+      - teaching_frame_or_explanation
+    manual_review_fields:
+      - "是否真的用了 Repeat Zone 表达 N 圈扩展"
+      - "解释是否说明了 selection 在 domain 间传播"
+
+  - id: pinned_mesh_relax
+    mode: modify
+    prompt: "在当前 mesh 节点组上加入带 pinned 顶点保护的松弛/平滑步骤，并解释哪些点不会移动"
+    reference: "modeling_tools/GN-relax_mesh_around_pins"
+    skill_files:
+      - "patterns/repeat-zone-iterative-smoothing.md"
+      - "patterns/material-attribute-handoff.md"
+      - "rules/attribute.md"
+    required_bl_idnames:
+      - GeometryNodeSetPosition
+      - GeometryNodeBlurAttribute
+    required_relationships:
+      - geometry_output
+      - displacement_offset
+      - field_to_consumer
+      - teaching_frame_or_explanation
+    manual_review_fields:
+      - "是否有 pinned mask 或命名属性参与权重控制"
+      - "是否解释哪些点被保护"

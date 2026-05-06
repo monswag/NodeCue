@@ -1,0 +1,288 @@
+# Golden-test prompts keyed to archetype coverage.
+#
+# Schema per entry:
+#   id:             stable identifier (unique)
+#   prompt:         user-facing utterance (Chinese+English mixed OK — matches
+#                   real addon usage)
+#   expected:
+#     primary:      archetype ID (A1-A9) the detector must return
+#     secondary:    optional list of archetype IDs allowed as secondaries
+#     mechanics:    optional list of mechanic IDs expected to be active
+#     required_bl_idnames: minimum bl_idnames the generated tree must contain
+#                   (used by recognition harness to sanity-check LLM output)
+#   reference:      optional "{blend}/{group}" pointer to an existing
+#                   reference whose detector classification is known to be
+#                   correct — used by the prompt-consistency test.
+#   note:           one-liner rationale; not consumed programmatically.
+#
+# Coverage target: ≥3 prompts per archetype.
+
+version: 1
+
+prompts:
+  # =========================================================================
+  # A1 Scatter / Instance Distribution
+  # =========================================================================
+  - id: A1.rocks_on_terrain
+    prompt: "在地形表面随机分布石头，大小随机，贴合地面法线"
+    expected:
+      primary: A1
+      mechanics: [M3]
+      required_bl_idnames:
+        - GeometryNodeDistributePointsOnFaces
+        - GeometryNodeInstanceOnPoints
+        - GeometryNodeCollectionInfo
+    reference: "advanced_rocks_scattering.file/Rock Scattering"
+    note: "Canonical scatter — surface distribute + collection instance."
+
+  - id: A1.grass_on_surface
+    prompt: "在草地上长出草叶，带密度遮罩"
+    expected:
+      primary: A1
+      mechanics: [M4]
+      required_bl_idnames:
+        - GeometryNodeDistributePointsOnFaces
+        - GeometryNodeInstanceOnPoints
+    reference: "Cabin/Tall Grass"
+    note: "Mask-driven density via Compare/BooleanMath."
+
+  - id: A1.lights_along_curve
+    prompt: "沿着曲线每隔一段距离放置一个路灯"
+    expected:
+      primary: A1
+      required_bl_idnames:
+        - GeometryNodeCurveToPoints
+        - GeometryNodeInstanceOnPoints
+    note: "Curve-to-points variant of scatter (not a surface distribute)."
+
+  - id: A1.moss_clusters
+    prompt: "在树枝上长出苔藓，每个苔藓都是一小簇实例"
+    expected:
+      primary: A1
+      required_bl_idnames:
+        - GeometryNodeInstanceOnPoints
+    reference: "tree_leaves_moss_geo-nodes-demo/Moss"
+    note: "Covers nested-instance variant."
+
+  # =========================================================================
+  # A2 Surface Displacement
+  # =========================================================================
+  - id: A2.noise_terrain
+    prompt: "用噪声把平面变成起伏的地形"
+    expected:
+      primary: A2
+      required_bl_idnames:
+        - GeometryNodeSetPosition
+        - ShaderNodeTexNoise
+    note: "Classic noise-driven displacement; teaches field→Offset wiring."
+
+  - id: A2.voronoi_bumps
+    prompt: "给球体表面加 Voronoi 细胞状凸起"
+    expected:
+      primary: A2
+      required_bl_idnames:
+        - GeometryNodeSetPosition
+        - ShaderNodeTexVoronoi
+        - GeometryNodeInputNormal
+    note: "Normal-direction displacement via Voronoi."
+
+  - id: A2.curve_controlled_height
+    prompt: "用 Float Curve 控制地形起伏的高度曲线"
+    expected:
+      primary: A2
+      required_bl_idnames:
+        - GeometryNodeSetPosition
+        - ShaderNodeFloatCurve
+    reference: "advanced_rocks_scattering.file/Ground Displacement"
+    note: "Multi-stage displacement with FloatCurve remap."
+
+  # =========================================================================
+  # A3 Curve-Swept Structure
+  # =========================================================================
+  - id: A3.pipe_along_curve
+    prompt: "沿着一条曲线生成一个管道"
+    expected:
+      primary: A3
+      required_bl_idnames:
+        - GeometryNodeCurveToMesh
+        - GeometryNodeCurvePrimitiveCircle
+    note: "Tube = curve skeleton + profile circle."
+
+  - id: A3.arc_wall
+    prompt: "用曲线骨架做一段弧形墙体"
+    expected:
+      primary: A3
+      required_bl_idnames:
+        - GeometryNodeCurveToMesh
+        - GeometryNodeCurveArc
+    reference: "Cabin/Arc Wall"
+    note: "Arc primitive + curve-to-mesh."
+
+  - id: A3.railing_from_path
+    prompt: "把贝塞尔曲线扫成铁栏杆"
+    expected:
+      primary: A3
+      required_bl_idnames:
+        - GeometryNodeCurveToMesh
+    note: "Swept profile structure."
+
+  # =========================================================================
+  # A4 Boolean / SDF Assembly
+  # =========================================================================
+  - id: A4.mesh_boolean_union
+    prompt: "把两个网格做布尔加法得到一个合并物体"
+    expected:
+      primary: A4
+      required_bl_idnames:
+        - GeometryNodeMeshBoolean
+    reference: "advanced_rocks_scattering.file/Rock Generator"
+    note: "A4.mesh subtype — pure mesh boolean."
+
+  - id: A4.sdf_smooth_blend
+    prompt: "用 SDF 做两个形状的圆角融合"
+    expected:
+      primary: A4
+      required_bl_idnames:
+        - GeometryNodeMeshToSDFGrid
+        - GeometryNodeSDFGridFillet
+        - GeometryNodeGridToMesh
+    reference: "SDF_mixer_kitbukoros/SDF_M_Smooth"
+    note: "A4.sdf subtype — SDF fillet + grid-to-mesh."
+
+  - id: A4.sdf_difference
+    prompt: "用 SDF 布尔减法从一个形状挖掉另一个"
+    expected:
+      primary: A4
+      required_bl_idnames:
+        - GeometryNodeMeshToSDFGrid
+        - GeometryNodeSDFGridBoolean
+    reference: "SDF_mixer_kitbukoros/SDF_M_Boolean"
+    note: "SDF boolean — difference mode. (Mesh-conversion handled by sibling Mesher group in the SDF_mixer addon.)"
+
+  # =========================================================================
+  # A5 Repeat-Zone Iteration
+  # =========================================================================
+  - id: A5.iterative_grow
+    prompt: "把花瓣从小到大逐步长大，用 Repeat Zone 迭代"
+    expected:
+      primary: A5
+      required_bl_idnames:
+        - GeometryNodeRepeatInput
+        - GeometryNodeRepeatOutput
+    reference: "repeat_zone_flower_by_MiRA/F-Rose01Anim"
+    note: "Within-frame iteration driving geometry growth."
+
+  - id: A5.fractal_subdivide
+    prompt: "反复细分曲面直到达到目标精度"
+    expected:
+      primary: A5
+      required_bl_idnames:
+        - GeometryNodeRepeatInput
+        - GeometryNodeRepeatOutput
+        - GeometryNodeSubdivisionSurface
+    note: "Fractal-style recursive subdivision."
+
+  - id: A5.accumulate_field
+    prompt: "在 Repeat Zone 里累加一个场值"
+    expected:
+      primary: A5
+      required_bl_idnames:
+        - GeometryNodeRepeatInput
+        - GeometryNodeRepeatOutput
+    note: "State-less accumulation inside repeat zone."
+
+  # =========================================================================
+  # A7 Parametric Primitive Generator (Generate Mode)
+  # =========================================================================
+  - id: A7.cube_with_params
+    prompt: "生成一个可以调尺寸的立方体"
+    expected:
+      primary: A7
+      required_bl_idnames:
+        - GeometryNodeMeshCube
+    reference: "Cabin/Plank"
+    note: "Minimal generator: primitive → output."
+
+  - id: A7.uv_sphere_generator
+    prompt: "生成一个带分段数控制的 UV 球"
+    expected:
+      primary: A7
+      required_bl_idnames:
+        - GeometryNodeMeshUVSphere
+    note: "Single-primitive generate mode."
+
+  - id: A7.stair_generator
+    prompt: "做一个参数化的螺旋楼梯生成器，步数可调"
+    expected:
+      primary: A7
+      secondary: [A1]
+      required_bl_idnames:
+        - GeometryNodeMeshCube
+    note: "Composite generator with instance pattern inside."
+
+  # =========================================================================
+  # A8 Simulation State
+  # =========================================================================
+  - id: A8.falling_particles
+    prompt: "让粒子从顶部随机发射并受重力下落"
+    expected:
+      primary: A8
+      required_bl_idnames:
+        - GeometryNodeSimulationInput
+        - GeometryNodeSimulationOutput
+        - GeometryNodeSetPosition
+    reference: "basic_particle_simulation/Basic Particle Simulation"
+    note: "Canonical sim zone: per-frame integrate position."
+
+  - id: A8.snow_accumulation
+    prompt: "让雪花随着时间在地面上逐渐累积"
+    expected:
+      primary: A8
+      required_bl_idnames:
+        - GeometryNodeSimulationInput
+        - GeometryNodeSimulationOutput
+    note: "State accumulation across frames."
+
+  - id: A8.soft_body_jiggle
+    prompt: "做一个果冻晃动的软体仿真"
+    expected:
+      primary: A8
+      secondary: [A1]
+      required_bl_idnames:
+        - GeometryNodeSimulationInput
+        - GeometryNodeSimulationOutput
+        - GeometryNodeSetPosition
+    reference: "jiggly_pudding/Pudding"
+    note: "Soft-body cross-frame state."
+
+  # =========================================================================
+  # A9 Modular Assembly (Join-as-Orchestrator)
+  # =========================================================================
+  - id: A9.procedural_house
+    prompt: "把房子拆成屋顶、墙、地面三个模块再拼装起来"
+    expected:
+      primary: A9
+      required_bl_idnames:
+        - GeometryNodeJoinGeometry
+        - GeometryNodeGroup
+    reference: "blender-geometry-nodes_procedural-buildings/Procedural Building"
+    note: "Classic modular orchestrator with sub-group modules."
+
+  - id: A9.cabin_composition
+    prompt: "用多个已有的 Node Group 拼装成一栋小木屋"
+    expected:
+      primary: A9
+      required_bl_idnames:
+        - GeometryNodeJoinGeometry
+        - GeometryNodeGroup
+    reference: "Cabin/13 Cabin"
+    note: "Composition-root with Join + material assignment."
+
+  - id: A9.tree_modules
+    prompt: "把树的主干、树枝、树叶作为独立模块拼成一棵完整的树"
+    expected:
+      primary: A9
+      secondary: [A1]
+      required_bl_idnames:
+        - GeometryNodeJoinGeometry
+    note: "Tree assembly with scatter sub-step."

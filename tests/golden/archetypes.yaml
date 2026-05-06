@@ -1,0 +1,206 @@
+# Archetype definitions for Geometry Nodes golden test v2.
+# Source of truth: docs/archetype_candidates.md (frozen 2026-04-19, v4).
+#
+# Gate semantics:
+#   - `required`: list of gates. ALL gates must pass (AND).
+#   - Each gate's `any_of` is a list of bl_idnames; gate passes if ANY present (OR).
+#   - `bl_idname_prefix` matches any bl_idname starting with the string.
+#   - `optional`: supporting nodes — contribute to confidence, not required.
+#   - `structural`: structural checks implemented by detector code (see archetype_detector.py STRUCTURAL_HOOKS).
+# Scoring:
+#   - All gates pass → base match.
+#   - Each optional node present adds weight; confidence = 0.6 + 0.05*optional_matches (capped 1.0).
+#   - Each passing structural hook adds +0.1.
+#   - `priority_boost` shifts the final score to encode archetype precedence
+#     (simulation/repeat dominate when they qualify; modular-assembly defers).
+
+version: 1
+
+archetypes:
+  A1:
+    name: "Scatter / Instance Distribution"
+    role_hint: "source → points → instances"
+    priority_boost: 0.05
+    structural_bonuses:
+      scatter_iop_present: 0.15  # pins A1 above A2 when scatter verb is unambiguous
+    required:
+      - any_of:
+          - GeometryNodeDistributePointsOnFaces
+          - GeometryNodeDistributePointsInVolume
+          - GeometryNodeMeshToPoints
+          - GeometryNodeCurveToPoints
+      - any_of:
+          - GeometryNodeInstanceOnPoints
+    optional:
+      - GeometryNodeCollectionInfo
+      - GeometryNodeRealizeInstances
+      - FunctionNodeRandomValue
+      - FunctionNodeAlignEulerToVector
+      - FunctionNodeAlignRotationToVector
+
+  A2:
+    name: "Surface Displacement"
+    role_hint: "Set Position driven by a field"
+    priority_boost: 0.05
+    required:
+      - any_of:
+          - GeometryNodeSetPosition
+      - any_of:
+          - ShaderNodeTexNoise
+          - ShaderNodeTexVoronoi
+          - ShaderNodeFloatCurve
+          - GeometryNodeInputNormal
+          - GeometryNodeInputPosition
+          - GeometryNodeCaptureAttribute
+    optional:
+      - ShaderNodeMath
+      - ShaderNodeVectorMath
+      - ShaderNodeMapRange
+      - ShaderNodeCombineXYZ
+      - ShaderNodeSeparateXYZ
+
+  A3:
+    name: "Curve-Swept Structure"
+    role_hint: "curve skeleton → surface"
+    priority_boost: 0.1
+    structural_bonuses:
+      curve_swept_dominant: 0.1  # pins A3 above A7 when CurveToMesh/Fill count ≥ 2
+    required:
+      - any_of:
+          - GeometryNodeCurveToMesh
+          - GeometryNodeFillCurve
+      - any_of_prefix:
+          - GeometryNodeCurvePrimitive
+        any_of:
+          - GeometryNodeMeshToCurve
+    optional:
+      - GeometryNodeResampleCurve
+      - GeometryNodeTrimCurve
+      - GeometryNodeSetCurveNormal
+      - GeometryNodeCurveSplineType
+      - GeometryNodeSplineParameter
+
+  A4:
+    name: "Boolean / SDF Assembly"
+    role_hint: "merge multiple geometries into one surface"
+    priority_boost: 0.15
+    required:
+      - any_of:
+          - GeometryNodeMeshBoolean
+          - GeometryNodeSDFGridBoolean
+          - GeometryNodeSDFGridFillet
+          - GeometryNodeSDFGridMean
+    optional:
+      - GeometryNodeMeshToSDFGrid
+      - GeometryNodeMeshToSDFVolume
+      - GeometryNodePointsToSDFGrid
+      - GeometryNodeGridToMesh
+      - GeometryNodeVolumeToMesh
+    sub_types:
+      - id: A4.mesh
+        description: "Pure mesh-boolean chain"
+        required_nodes: [GeometryNodeMeshBoolean]
+      - id: A4.sdf
+        description: "mesh → SDF grid → boolean/fillet → grid-to-mesh"
+        required_nodes:
+          - GeometryNodeMeshToSDFGrid
+          - GeometryNodeGridToMesh
+
+  A5:
+    name: "Repeat-Zone Iteration"
+    role_hint: "within-frame iterative evolution"
+    priority_boost: 0.2
+    required:
+      - any_of:
+          - GeometryNodeRepeatInput
+      - any_of:
+          - GeometryNodeRepeatOutput
+    optional:
+      - GeometryNodeFieldOnDomain
+      - GeometryNodeFieldAtIndex
+      - GeometryNodeSwitch
+
+  A7:
+    name: "Parametric Primitive Generator"
+    role_hint: "trunk originates from primitive, bypassing Group Input"
+    required:
+      - any_of_prefix:
+          - GeometryNodeMeshCube
+          - GeometryNodeMeshCone
+          - GeometryNodeMeshCylinder
+          - GeometryNodeMeshUVSphere
+          - GeometryNodeMeshIcoSphere
+          - GeometryNodeMeshGrid
+          - GeometryNodeMeshCircle
+          - GeometryNodeCurvePrimitive
+    structural:
+      - generate_mode_trunk   # Group Input.Geometry disconnected OR primitive feeds Output directly
+    optional:
+      - GeometryNodeSubdivisionSurface
+      - GeometryNodeSetShadeSmooth
+      - GeometryNodeTransform
+
+  A8:
+    name: "Simulation State"
+    role_hint: "cross-frame state iteration"
+    priority_boost: 0.3
+    required:
+      - any_of:
+          - GeometryNodeSimulationInput
+      - any_of:
+          - GeometryNodeSimulationOutput
+    optional:
+      - GeometryNodeInputSceneTime
+      - FunctionNodeRandomValue
+      - GeometryNodeSetPosition
+
+  A9:
+    name: "Modular Assembly (Join-as-Orchestrator)"
+    role_hint: "compose multiple pre-built parts, Join is the primary verb"
+    priority_boost: -0.15
+    structural_bonuses:
+      a9_strong_assembly: 0.3  # restores A9 dominance when Join/Group counts are high
+    required:
+      - any_of:
+          - GeometryNodeJoinGeometry
+    structural:
+      - join_is_primary_verb   # Join ≥2 AND non-routing non-group work minimal
+    optional:
+      - GeometryNodeGroup
+      - GeometryNodeTransform
+      - GeometryNodeSwitch
+      - GeometryNodeStoreNamedAttribute
+
+mechanics:
+  M1:
+    name: "Attribute Capture & Propagation"
+    nodes:
+      - GeometryNodeCaptureAttribute
+      - GeometryNodeStoreNamedAttribute
+      - GeometryNodeInputNamedAttribute
+  M2:
+    name: "Join-as-Glue"
+    nodes:
+      - GeometryNodeJoinGeometry
+    note: "Only counts when Join is NOT the primary verb (A9 takes precedence)."
+  M3:
+    name: "Aligned Instance Rotation"
+    nodes:
+      - FunctionNodeAlignEulerToVector
+      - FunctionNodeAlignRotationToVector
+      - FunctionNodeAxisAngleToRotation
+      - FunctionNodeRotateVector
+  M4:
+    name: "Selection / Masking Field"
+    nodes:
+      - FunctionNodeCompare
+      - FunctionNodeBooleanMath
+      - GeometryNodeFieldAtIndex
+      - GeometryNodeFieldOnDomain
+      - GeometryNodeAccumulateField
+      - GeometryNodeProximity
+      - GeometryNodeRaycast
+      - GeometryNodeSampleNearestSurface
+      - GeometryNodeCurveEndpointSelection
+      - GeometryNodeInputMeshIsland
+    min_match: 2  # require at least 2 of these nodes to count as active

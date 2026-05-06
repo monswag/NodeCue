@@ -1,0 +1,157 @@
+# Manual archetype labels — extracted from docs/archetype_candidates.md (v4).
+#
+# Keys: "{blend_name}/{group_name}" (group name uses underscore-for-space to
+# match the exported JSON file convention).
+# Values:
+#   primary: the archetype that best captures the group's purpose
+#   secondary: optional list of archetypes the group also exhibits
+#   mechanics: expected mechanics (informational; detector runs them)
+#   note: source of the label in archetype_candidates.md
+
+# ---- A1 Scatter / Instance Distribution ----
+advanced_rocks_scattering.file/Rock Scattering:
+  primary: A1
+  note: "canonical scatter+instance (L38)"
+
+# Note: doc L37 lists "Cabin/Tree Leaves" and "Cabin/Moss" but the Cabin blend
+# does not actually ship groups by those names — they belong to
+# tree_leaves_moss_geo-nodes-demo. Entries removed here to match reality.
+Cabin/Grass:
+  primary: A1
+  secondary: [A2]
+  mechanics: [M1, M4]
+  note: "L37 + M4 (L270)"
+Cabin/Tall Grass:
+  primary: A1
+  mechanics: [M4]
+  note: "L37 + M4 (L271)"
+Cabin/Background:
+  primary: A1
+  note: "L37 (mixed with A9 orchestration)"
+Cabin/Short Grass:
+  primary: A1
+  secondary: [A2]
+  note: "L37 + L60 (field-driven)"
+
+tree_leaves_moss_geo-nodes-demo/Moss:
+  primary: A1
+  note: "L39"
+tree_leaves_moss_geo-nodes-demo/Tree Leaves:
+  primary: A1
+  note: "L39"
+tree_leaves_moss_geo-nodes-demo/Tree Moss:
+  primary: A1
+  note: "L39"
+
+# ---- A2 Surface Displacement ----
+advanced_rocks_scattering.file/Ground Displacement:
+  primary: A2
+  note: "SetPosition×5 stages (L58)"
+Cabin/Tree:
+  primary: A2
+  secondary: [A7, A4]
+  note: "SetPosition×4, also SDF trunk + generator (L59, L110)"
+Cabin/Rock Generator:
+  primary: A2
+  secondary: [A7]
+  note: "L60 + L164 (also generator)"
+Cabin/Deck:
+  primary: A2
+  secondary: [A3]
+  note: "L60 + L86"
+repeat_zone_flower_by_MiRA/GN_Petal.001:
+  primary: A2
+  secondary: [A7]
+  note: "SetPosition×5 with MapRange (L61); also generator (L165)"
+
+# ---- A3 Curve-Swept Structure ----
+Cabin/Tree House:
+  primary: A3
+  secondary: [A9]
+  note: "curve-to-mesh beams (L85) + Join×14 (L186)"
+Cabin/Windows:
+  primary: A3
+  note: "L86"
+Cabin/Arc Wall:
+  primary: A3
+  note: "L86"
+modeling_tools/GN-relax_mesh_around_pins:
+  primary: A3
+  secondary: [A5]
+  note: "mesh↔curve conversion chain (L87), repeat zone relaxation (L137)"
+
+# ---- A4 Boolean / SDF Assembly ----
+SDF_mixer_kitbukoros/SDF_M_Boolean:
+  primary: A4
+  sub: A4.sdf
+  note: "MeshToSDFGrid + SDFGridBoolean + RealizeInstances (L107)"
+SDF_mixer_kitbukoros/SDF_M_Smooth:
+  primary: A4
+  sub: A4.sdf
+  note: "MeshToSDFGrid + Fillet + Mean + GridToMesh (L108)"
+SDF_mixer_kitbukoros/SDF_M_Mesher:
+  primary: A4
+  sub: A4.sdf
+  note: "GridToMesh + proximity + DeleteGeometry (L109)"
+Cabin/Ground:
+  primary: A4
+  sub: A4.sdf
+  note: "MeshToSDFGrid×3 + SDFBoolean×2 + GridToMesh (L111)"
+advanced_rocks_scattering.file/Rock Generator:
+  primary: A4
+  sub: A4.mesh
+  note: "L112 pure MeshBoolean"
+mesh_fracturing/Cut Fracturing:
+  primary: A4
+  secondary: [A8]
+  note: "MeshBoolean + simulation (L113, L213)"
+click_tools-impact_fracture/Impact Fracture Tool:
+  primary: A4
+  secondary: [A5]
+  note: "MeshBoolean + repeat-zone (L114)"
+
+# ---- A5 Repeat-Zone Iteration ----
+repeat_zone_flower_by_MiRA/F-Rose01Anim:
+  primary: A5
+  note: "L136"
+
+# ---- A7 Parametric Primitive Generator ----
+Cabin/Plank:
+  primary: A7
+  note: "MeshCube → Transform → Output (L163)"
+
+# ---- A8 Simulation ----
+basic_particle_simulation/Basic Particle Simulation:
+  primary: A8
+  note: "SimulationIn/Out + distribute + random + set-position (L209)"
+2D_smoke_simulation/GN-2d_smoke_puffs:
+  primary: A8
+  secondary: [A3]
+  note: "simulation + curve-to-mesh + noise (L210)"
+2D_smoke_simulation/smoke_puff_step:
+  primary: A8
+  note: "inner step body (L211)"
+jiggly_pudding/Pudding:
+  primary: A8
+  secondary: [A1]
+  note: "simulation + curve-to-points + instance-on-points (L212)"
+
+# ---- A9 Modular Assembly ----
+blender-geometry-nodes_procedural-buildings/Procedural Building:
+  primary: A9
+  note: "L183 top-level orchestrator"
+blender-geometry-nodes_procedural-buildings/Windows points:
+  primary: A9
+  note: "L184"
+blender-geometry-nodes_procedural-buildings/Roof points:
+  primary: A9
+  note: "L184"
+blender-geometry-nodes_procedural-buildings/Windows instances:
+  primary: A9
+  note: "L184"
+blender-geometry-nodes_procedural-buildings/Roof instances:
+  primary: A9
+  note: "L184"
+Cabin/13 Cabin:
+  primary: A9
+  note: "L185 Group×10 + Join + SetMaterial + Switch"
