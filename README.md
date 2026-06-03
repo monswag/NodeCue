@@ -13,10 +13,23 @@ The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-n
 
 ## Quick Start
 
-1. Copy this repository or the add-on package to Blender's add-ons directory.
-2. Copy `.env.example` to `.env` and set `OPENROUTER_API_KEY`.
-3. Enable the `nodecue` add-on in Blender.
-4. Use the NodeCue panel to run Check Setup, then Generate / Explain / Modify.
+1. Install the sidecar dependencies:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-agent.txt
+```
+
+2. Copy NodeCue into Blender's add-ons directory:
+
+```bash
+python3 scripts/install_addon.py --blender-version 5.1 --force
+```
+
+3. Copy the installed `nodecue.env.example` to `.env` in Blender's add-ons directory and set `OPENROUTER_API_KEY`.
+4. Enable the `nodecue` add-on in Blender.
+5. In NodeCue preferences, set `Sidecar Python` to your `.venv` Python and run Check Setup.
+6. Use the NodeCue panel to run Generate, Explain, or Modify.
 
 Detailed setup is in [docs/quickstart.md](docs/quickstart.md).
 
