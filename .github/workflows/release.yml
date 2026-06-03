@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build alpha release bundle
+        run: python scripts/build_release_bundle.py --output "dist/nodecue-${GITHUB_REF_NAME}-alpha-bundle.zip"
+
+      - name: Verify alpha release bundle
+        run: |
+          bundle="dist/nodecue-${GITHUB_REF_NAME}-alpha-bundle.zip"
+          python -m zipfile -l "$bundle"
+          python -m zipfile -l "$bundle" | grep "NodeCue/nodecue/__init__.py"
+          python -m zipfile -l "$bundle" | grep "NodeCue/nodecue_agent/__init__.py"
+          python -m zipfile -l "$bundle" | grep "NodeCue/scripts/install_addon.py"
+          python -m zipfile -l "$bundle" | grep "NodeCue/.env.example"
+          ! python -m zipfile -l "$bundle" | grep -E "(__pycache__|\\.pyc$|\\.env$|\\.blend1?$|\\.tgz$)"
+
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bundle="dist/nodecue-${GITHUB_REF_NAME}-alpha-bundle.zip"
+          gh release create "$GITHUB_REF_NAME" "$bundle" \
+            --draft \
+            --title "$GITHUB_REF_NAME" \
+            --notes "NodeCue alpha release bundle. Unzip it first, then run scripts/install_addon.py."

@@ -41,6 +41,8 @@ python3 scripts/build_release_bundle.py
 
 The bundle is a zip of this alpha snapshot, not a Blender one-click add-on zip. Unzip it first, then run `scripts/install_addon.py`.
 
+Pushing a `v*` tag creates a draft GitHub Release with the same bundle attached.
+
 ## External Agents
 
 Codex, Claude, and other agents can use the standalone Geometry Nodes skill with the official Blender MCP. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
