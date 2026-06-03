@@ -53,6 +53,10 @@ The public alpha is free. Optional paid help should focus on setup support, work
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for useful alpha contributions, PR expectations, and what to avoid while the Geometry Nodes alpha is still stabilizing.
 
+## Security
+
+Do not share API keys, private asset-library paths, or proprietary `.blend` files in public issues. See [SECURITY.md](SECURITY.md).
+
 ## Status
 
 This is a public alpha preparation snapshot. It is usable for Geometry Nodes experiments, but not yet a polished public release. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
