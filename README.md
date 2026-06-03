@@ -43,6 +43,8 @@ The bundle is a zip of this alpha snapshot, not a Blender one-click add-on zip. 
 
 Pushing a `v*` tag creates a draft GitHub Release with the same bundle attached.
 
+Before making the repositories public, use [docs/release-checklist.md](docs/release-checklist.md).
+
 ## External Agents
 
 Codex, Claude, and other agents can use the standalone Geometry Nodes skill with the official Blender MCP. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
