@@ -25,3 +25,21 @@ jobs:
 
       - name: Run unit tests
         run: python -m pytest tests -q
+
+      - name: Build alpha release bundle
+        run: python scripts/build_release_bundle.py --output dist/nodecue-alpha-bundle.zip
+
+      - name: Verify alpha release bundle
+        run: |
+          python -m zipfile -l dist/nodecue-alpha-bundle.zip
+          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/nodecue/__init__.py"
+          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/nodecue_agent/__init__.py"
+          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/scripts/install_addon.py"
+          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/.env.example"
+          ! python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep -E "(__pycache__|\\.pyc$|\\.env$|\\.blend1?$|\\.tgz$)"
+
+      - name: Upload alpha release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodecue-alpha-bundle
+          path: dist/nodecue-alpha-bundle.zip
