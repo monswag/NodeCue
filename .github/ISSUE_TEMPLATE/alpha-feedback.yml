@@ -1,0 +1,70 @@
+name: Alpha feedback
+description: Report setup problems, model output quality, or node graph issues from a NodeCue alpha run.
+title: "[Alpha] "
+labels: ["alpha-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing NodeCue. Reports are most useful when they include the prompt, model, report JSON, and what looked wrong in Blender.
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      options:
+        - Generate
+        - Explain
+        - Modify
+        - Setup / Check Setup
+        - External agent + Blender MCP
+    validations:
+      required: true
+  - type: input
+    id: blender-version
+    attributes:
+      label: Blender version
+      placeholder: "5.1.0"
+    validations:
+      required: true
+  - type: input
+    id: provider-model
+    attributes:
+      label: Provider and model
+      placeholder: "OpenRouter / moonshotai/kimi-k2.6"
+    validations:
+      required: false
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Prompt
+      description: Paste the exact prompt you used.
+    validations:
+      required: false
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened?
+      description: Describe the generated graph, setup failure, explanation issue, or Blender error.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: If the result looked wrong, explain what you expected the node graph or explanation to do.
+    validations:
+      required: false
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Report / artifact details
+      description: Paste relevant report JSON snippets, stderr, screenshots, or attach the generated .blend if you can share it. Do not include API keys.
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Anything about your OS, add-on settings, asset libraries, or official MCP setup that may matter.
+    validations:
+      required: false

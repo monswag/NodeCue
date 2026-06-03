@@ -26,6 +26,12 @@ Codex, Claude, and other agents can use the standalone Geometry Nodes skill with
 
 See [docs/external-agents.md](docs/external-agents.md).
 
+## Alpha Feedback
+
+Useful reports include the prompt, Blender version, provider/model, report JSON, and what looked wrong in the node graph. Use the `Alpha feedback` issue template after trying Generate, Explain, Modify, or the external-agent workflow.
+
+Do not paste API keys or private asset-library paths into public issues.
+
 ## Status
 
 This is a public alpha preparation snapshot. It is usable for Geometry Nodes experiments, but not yet a polished public release. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
