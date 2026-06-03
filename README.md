@@ -28,7 +28,7 @@ See [docs/external-agents.md](docs/external-agents.md).
 
 ## Status
 
-This is a private alpha snapshot. It is usable for Geometry Nodes experiments, but not yet a polished public release. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md).
+This is a public alpha preparation snapshot. It is usable for Geometry Nodes experiments, but not yet a polished public release. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
 
 ## Tests
 
