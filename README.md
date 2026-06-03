@@ -45,6 +45,10 @@ Useful reports include the prompt, Blender version, provider/model, report JSON,
 
 Do not paste API keys or private asset-library paths into public issues.
 
+## Support and Business Model
+
+The public alpha is free. Optional paid help should focus on setup support, workflow consulting, private asset-library indexing, or sponsored improvements. See [docs/support-and-business.md](docs/support-and-business.md).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for useful alpha contributions, PR expectations, and what to avoid while the Geometry Nodes alpha is still stabilizing.
