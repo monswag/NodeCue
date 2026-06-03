@@ -61,6 +61,8 @@ Do not share API keys, private asset-library paths, or proprietary `.blend` file
 
 This is a public alpha preparation snapshot. It is usable for Geometry Nodes experiments, but not yet a polished public release. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
 
+See [CHANGELOG.md](CHANGELOG.md) for the current alpha snapshot contents.
+
 ## Tests
 
 Offline tests:
