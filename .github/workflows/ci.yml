@@ -8,23 +8,20 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Setup Conda (blender env)
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          activate-environment: blender
-          auto-activate-base: false
-          channels: conda-forge,defaults
           python-version: "3.11"
+          cache: "pip"
 
       - name: Install test deps
-        shell: bash -el {0}
-        run: |
-          conda install -n blender -y pytest pyyaml
-          conda run -n blender python -m pip install -r requirements-agent.txt
+        run: python -m pip install -r requirements-agent.txt
+
+      - name: Smoke test add-on installer
+        run: python scripts/install_addon.py --addons-dir /tmp/nodecue_addon_ci --force
 
       - name: Run unit tests
-        shell: bash -el {0}
-        run: conda run -n blender python -m pytest tests -q
+        run: python -m pytest tests -q

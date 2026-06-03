@@ -62,7 +62,7 @@ This is a public alpha preparation snapshot. It is usable for Geometry Nodes exp
 Offline tests:
 
 ```bash
-conda run -n blender python -m pytest tests/ -q
+python -m pytest tests/ -q
 ```
 
 Real model and Blender/MCP smoke tests are opt-in and are not run in CI by default.
