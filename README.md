@@ -32,6 +32,10 @@ Useful reports include the prompt, Blender version, provider/model, report JSON,
 
 Do not paste API keys or private asset-library paths into public issues.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for useful alpha contributions, PR expectations, and what to avoid while the Geometry Nodes alpha is still stabilizing.
+
 ## Status
 
 This is a public alpha preparation snapshot. It is usable for Geometry Nodes experiments, but not yet a polished public release. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
