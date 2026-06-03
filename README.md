@@ -33,6 +33,14 @@ python3 scripts/install_addon.py --blender-version 5.1 --force
 
 Detailed setup is in [docs/quickstart.md](docs/quickstart.md).
 
+To build a local release bundle zip:
+
+```bash
+python3 scripts/build_release_bundle.py
+```
+
+The bundle is a zip of this alpha snapshot, not a Blender one-click add-on zip. Unzip it first, then run `scripts/install_addon.py`.
+
 ## External Agents
 
 Codex, Claude, and other agents can use the standalone Geometry Nodes skill with the official Blender MCP. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
