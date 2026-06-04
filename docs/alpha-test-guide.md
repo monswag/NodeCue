@@ -78,8 +78,18 @@ What to inspect:
 
 Install the standalone skill package, then ask Codex, Claude, or another external agent to solve Test 1 through the official Blender MCP.
 
+After the npm package is published:
+
 ```bash
 npx @nodecue/blender-node-skills install
+```
+
+If npm publishing is still pending:
+
+```bash
+git clone https://github.com/monswag/nodecue-blender-node-skills.git
+cd nodecue-blender-node-skills
+node bin/install.js install
 ```
 
 Compare:
