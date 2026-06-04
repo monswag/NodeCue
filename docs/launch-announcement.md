@@ -1,0 +1,55 @@
+# Alpha Launch Announcement
+
+Use these drafts after the repository is public and the current draft release is published.
+
+## GitHub Release / README Short Intro
+
+```text
+NodeCue is an early Blender 5.1 add-on for learning, building, modifying, and explaining Geometry Nodes with a focused local agent.
+
+The first alpha is intentionally narrow: Geometry Nodes only, OpenRouter/OpenAI-compatible model setup, Generate/Explain/Modify modes, local report JSON, and optional saved .blend artifacts for debugging.
+
+This is not a polished one-click add-on yet. The goal is to learn where real Blender users get stuck: setup, model choice, graph quality, explanation quality, or node execution.
+```
+
+## Blender / Community Forum Post
+
+```text
+I am opening an alpha for NodeCue, a Blender add-on focused on Geometry Nodes learning and graph construction.
+
+The idea is not to replace full agents like Claude or Codex. NodeCue is narrower: it runs inside Blender, uses a controlled set of node operations, and tries to create teachable node graphs with frames and explanations.
+
+Current alpha scope:
+- Blender 5.1 Geometry Nodes only
+- Generate, Explain, and Modify modes
+- OpenRouter or another OpenAI-compatible model endpoint
+- local report JSON and optional saved .blend artifacts
+- a standalone Geometry Nodes skill that external agents can also use with the official Blender MCP
+
+Useful feedback:
+- whether you could install it from the quickstart
+- prompt, provider/model, and mode used
+- what the generated node graph got wrong
+- whether the explanation helped you understand the graph
+- screenshots, report JSON, or a shareable .blend if possible
+
+Please do not post API keys, private asset-library paths, or unreleasable production files in public issues.
+```
+
+## Standalone Skill Package Post
+
+```text
+I also split out the Geometry Nodes skill as a standalone package for agents such as Codex, Claude, or other tools that can control Blender through the official MCP.
+
+The skill is not a fixed list of graph templates. It is a knowledge package about Geometry Nodes reasoning: node roles, sockets, field/data-flow relationships, verified patterns, readback repair, and teachable frame organization.
+
+The npm package is planned as @nodecue/blender-node-skills. Until npm is published, use the public GitHub checkout fallback from the README.
+```
+
+## Optional Paid Help Wording
+
+```text
+NodeCue is free during alpha. If you want help getting it running or testing it on a specific Geometry Nodes workflow, paid setup and workflow review sessions may be available. Bug reports, basic alpha access, and fixes for broken documented behavior stay free.
+```
+
+Keep payment details, private files, and API credentials out of public issue threads.
