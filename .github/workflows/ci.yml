@@ -16,6 +16,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
+          cache-dependency-path: "requirements-agent.txt"
 
       - name: Install test deps
         run: python -m pip install -r requirements-agent.txt
