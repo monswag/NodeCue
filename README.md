@@ -57,6 +57,8 @@ Useful reports include the prompt, Blender version, provider/model, report JSON,
 
 Do not paste API keys or private asset-library paths into public issues.
 
+Suggested first tests are in [docs/alpha-test-guide.md](docs/alpha-test-guide.md).
+
 ## Support and Business Model
 
 The public alpha is free. Optional paid help should focus on setup support, workflow consulting, private asset-library indexing, or sponsored improvements. See [docs/support-and-business.md](docs/support-and-business.md).
