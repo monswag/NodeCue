@@ -2,6 +2,8 @@
 
 NodeCue is in public alpha preparation. Contributions are most useful when they improve installability, Geometry Nodes reliability, issue diagnosis, or the first user feedback loop.
 
+Before contributing, read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
 ## Good First Contributions
 
 - Quickstart fixes for macOS, Windows, or Linux.
