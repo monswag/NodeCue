@@ -40,5 +40,6 @@ jobs:
           bundle="dist/nodecue-${GITHUB_REF_NAME}-alpha-bundle.zip"
           gh release create "$GITHUB_REF_NAME" "$bundle" \
             --draft \
+            --prerelease \
             --title "$GITHUB_REF_NAME" \
             --notes "NodeCue alpha release bundle. Unzip it first, then run scripts/install_addon.py."
