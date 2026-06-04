@@ -20,6 +20,25 @@ Paid work should be optional and focused on convenience or specialized help:
 
 Do not put basic alpha usage, bug fixes, or the standalone skill behind a paywall.
 
+## Starter Support Menu
+
+Use this as the first simple paid offering while the alpha is still proving value:
+
+- Alpha setup help: install NodeCue, configure the sidecar Python, connect an OpenAI-compatible provider, and run the first Generate test.
+- Workflow review: test NodeCue on one user-provided Geometry Nodes workflow and summarize where the graph or explanation fails.
+- Asset-library review: inspect a small authorized node-group library and suggest reuse/indexing improvements without publishing private assets.
+- Sponsored fix: fund a scoped Geometry Nodes reliability improvement that remains available in the public alpha.
+
+Do not promise production support, private model hosting, OAuth login, or custom Shader/Compositing Nodes work in the first alpha offer.
+
+Suggested public wording:
+
+```text
+NodeCue is free during alpha. If you want help getting it running or testing it on your Geometry Nodes workflow, paid setup and workflow review sessions are available. Bug reports and basic alpha access stay free.
+```
+
+Keep payment details out of public issues. Use issues to identify the request, then move scheduling, files, and private asset-library details to a private channel.
+
 ## Future Pro Direction
 
 A future Pro tier can make sense only after the free alpha proves value. The most plausible paid features are:
