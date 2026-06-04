@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.7 - 2026-06-04
+## 0.1.0-alpha.8 - 2026-06-04
 
 This snapshot is preparing NodeCue for a first public alpha. The goal is a usable Geometry Nodes-focused Blender add-on that early users can install, test, and report issues against.
 
@@ -17,6 +17,7 @@ This snapshot is preparing NodeCue for a first public alpha. The goal is a usabl
 - Alpha issue template, contribution guide, security policy, and support/business model notes.
 - README status wording aligned with a public alpha release candidate.
 - Public launch announcement drafts for GitHub, Blender/community forums, the standalone skill package, and optional paid help.
+- Post-public smoke check added to the release checklist.
 
 ### Not Included Yet
 

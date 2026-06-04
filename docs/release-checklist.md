@@ -85,6 +85,39 @@ node bin/install.js install
 - Do not charge for alpha access, bug fixes, or the standalone skill.
 - Offer optional paid help only for setup support, workflow consulting, private asset-library indexing, or sponsored improvements.
 
+## Post-Public Smoke Check
+
+Run this immediately after making the repositories public and publishing the draft release:
+
+- Open both repositories from a signed-out or incognito browser:
+  - `https://github.com/monswag/NodeCue`
+  - `https://github.com/monswag/nodecue-blender-node-skills`
+- Confirm the NodeCue release page is public and shows the current alpha bundle.
+- Download the bundle from the public release page.
+- Unzip it and confirm these files are present:
+  - `README.md`
+  - `docs/quickstart.md`
+  - `docs/alpha-test-guide.md`
+  - `docs/external-agents.md`
+  - `docs/launch-announcement.md`
+  - `scripts/install_addon.py`
+- Run the installer from the unzipped bundle:
+
+```bash
+python3 scripts/install_addon.py --blender-version 5.1 --force
+```
+
+- Confirm GitHub issues show the alpha feedback template.
+- Confirm the standalone skill checkout fallback works from a fresh directory:
+
+```bash
+git clone https://github.com/monswag/nodecue-blender-node-skills.git
+cd nodecue-blender-node-skills
+node bin/install.js install
+```
+
+- If npm is not published yet, confirm public docs clearly say to use the checkout fallback.
+
 ## First Community Ask
 
 Ask testers to try one of these:
