@@ -36,7 +36,7 @@ python scripts/build_release_bundle.py
 ```
 
 - Verify the bundle contains `nodecue/`, `nodecue_agent/`, `docs/`, `scripts/`, `.env.example`, and no private artifacts.
-- Create an alpha tag such as `v0.1.0-alpha.0`.
+- Create an alpha tag such as `v0.1.0-alpha.1`.
 - Let GitHub Actions create the draft release.
 - Review the draft release notes before publishing.
 - Keep the release notes clear that this is a Blender 5.1 Geometry Nodes alpha, not a polished one-click installer.
@@ -62,6 +62,14 @@ npm pack --dry-run
 
 ```bash
 npx @nodecue/blender-node-skills install --force
+```
+
+- If npm publishing is still pending, verify the checkout fallback:
+
+```bash
+git clone https://github.com/monswag/nodecue-blender-node-skills.git
+cd nodecue-blender-node-skills
+node bin/install.js install
 ```
 
 ## Public Launch Notes
