@@ -103,3 +103,5 @@ Generated reports and saved `.blend` artifacts are local debugging aids. Do not 
 - If the model is missing, set `NODECUE_AGENT_MODEL` in `.env` or in Add-on Preferences.
 - If the API key is missing, confirm `OPENROUTER_API_KEY` exists in the selected `.env`.
 - If the bridge is stopped, press Start Bridge or run Check Setup again.
+
+More detailed setup fixes are in [troubleshooting.md](troubleshooting.md).
