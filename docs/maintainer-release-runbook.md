@@ -2,17 +2,22 @@
 
 Use this only after the release candidate has passed CI and you are ready to expose the repositories publicly.
 
-Current prepared add-on candidate:
+Before publishing, choose the current prepared add-on candidate from the latest green draft release:
 
-- NodeCue release: `v0.1.0-alpha.9`
-- Bundle: `nodecue-v0.1.0-alpha.9-alpha-bundle.zip`
-- Bundle SHA256: `e4d5e945d01e704396d896de9723913e7710ad0c091ea6bb9f45640fa3fdeb38`
+```bash
+gh release list --repo monswag/NodeCue --limit 5
+NODECUE_TAG=<current NodeCue draft release tag>
+gh release view "$NODECUE_TAG" --repo monswag/NodeCue --json isDraft,isPrerelease,assets
+```
 
-Current prepared skill candidate:
+Current prepared skill candidate variables:
 
-- Skill release: `v0.1.0-alpha.1`
-- npm package: `@nodecue/blender-node-skills@0.1.0-alpha.1`
-- npm status: not published yet
+```bash
+SKILL_TAG=v0.1.0-alpha.1
+SKILL_PACKAGE=@nodecue/blender-node-skills@0.1.0-alpha.1
+```
+
+npm status is not published yet.
 
 ## Minimum Public Alpha Switch
 
@@ -21,8 +26,8 @@ Run these in order:
 ```bash
 gh repo edit monswag/nodecue-blender-node-skills --visibility public --accept-visibility-change-consequences
 gh repo edit monswag/NodeCue --visibility public --accept-visibility-change-consequences
-gh release edit v0.1.0-alpha.1 --repo monswag/nodecue-blender-node-skills --draft=false --prerelease
-gh release edit v0.1.0-alpha.9 --repo monswag/NodeCue --draft=false --prerelease
+gh release edit "$SKILL_TAG" --repo monswag/nodecue-blender-node-skills --draft=false --prerelease
+gh release edit "$NODECUE_TAG" --repo monswag/NodeCue --draft=false --prerelease
 ```
 
 Then run the post-public smoke check in `docs/release-checklist.md`.

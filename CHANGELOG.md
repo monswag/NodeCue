@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.10 - 2026-06-05
+## 0.1.0-alpha.11 - 2026-06-05
 
 This snapshot is preparing NodeCue for a first public alpha. The goal is a usable Geometry Nodes-focused Blender add-on that early users can install, test, and report issues against.
 
@@ -20,6 +20,7 @@ This snapshot is preparing NodeCue for a first public alpha. The goal is a usabl
 - Post-public smoke check added to the release checklist.
 - Maintainer release runbook added for the final public switch and npm follow-up.
 - Maintainer runbook public-switch commands verified against the local GitHub CLI.
+- Maintainer runbook now uses release tag variables instead of hardcoded NodeCue candidate tags.
 
 ### Not Included Yet
 
