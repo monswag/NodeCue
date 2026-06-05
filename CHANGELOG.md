@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.12 - 2026-06-05
+## 0.1.0-alpha.13 - 2026-06-05
 
 This snapshot is preparing NodeCue for a first public alpha. The goal is a usable Geometry Nodes-focused Blender add-on that early users can install, test, and report issues against.
 
@@ -22,6 +22,7 @@ This snapshot is preparing NodeCue for a first public alpha. The goal is a usabl
 - Maintainer runbook public-switch commands verified against the local GitHub CLI.
 - Maintainer runbook now uses release tag variables instead of hardcoded NodeCue candidate tags.
 - Paid support intake template added for optional setup help, workflow reviews, asset-library reviews, and sponsored fixes.
+- Setup troubleshooting guide added for Check Setup, Sidecar Python, `.env`, provider/model, and graph-quality report issues.
 
 ### Not Included Yet
 
