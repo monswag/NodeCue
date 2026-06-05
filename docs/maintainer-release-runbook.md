@@ -4,9 +4,9 @@ Use this only after the release candidate has passed CI and you are ready to exp
 
 Current prepared add-on candidate:
 
-- NodeCue release: `v0.1.0-alpha.8`
-- Bundle: `nodecue-v0.1.0-alpha.8-alpha-bundle.zip`
-- Bundle SHA256: `68065d88865a09dbe941ca976ced14ddea9da89a7537fcbc50e83923c05d95c5`
+- NodeCue release: `v0.1.0-alpha.9`
+- Bundle: `nodecue-v0.1.0-alpha.9-alpha-bundle.zip`
+- Bundle SHA256: `e4d5e945d01e704396d896de9723913e7710ad0c091ea6bb9f45640fa3fdeb38`
 
 Current prepared skill candidate:
 
@@ -19,10 +19,10 @@ Current prepared skill candidate:
 Run these in order:
 
 ```bash
-gh repo edit monswag/nodecue-blender-node-skills --visibility public
-gh repo edit monswag/NodeCue --visibility public
+gh repo edit monswag/nodecue-blender-node-skills --visibility public --accept-visibility-change-consequences
+gh repo edit monswag/NodeCue --visibility public --accept-visibility-change-consequences
 gh release edit v0.1.0-alpha.1 --repo monswag/nodecue-blender-node-skills --draft=false --prerelease
-gh release edit v0.1.0-alpha.8 --repo monswag/NodeCue --draft=false --prerelease
+gh release edit v0.1.0-alpha.9 --repo monswag/NodeCue --draft=false --prerelease
 ```
 
 Then run the post-public smoke check in `docs/release-checklist.md`.
