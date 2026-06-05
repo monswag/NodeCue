@@ -39,6 +39,8 @@ NodeCue is free during alpha. If you want help getting it running or testing it 
 
 Keep payment details out of public issues. Use issues to identify the request, then move scheduling, files, and private asset-library details to a private channel.
 
+Use [paid-support-intake.md](paid-support-intake.md) when a user asks for paid setup help, workflow review, asset-library review, or a sponsored fix.
+
 ## Future Pro Direction
 
 A future Pro tier can make sense only after the free alpha proves value. The most plausible paid features are:
