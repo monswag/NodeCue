@@ -16,15 +16,20 @@ DEFAULT_SKILL_PATH = str(Path(__file__).resolve().parent / "skills" / "geometry-
 
 def _default_sidecar_root() -> str:
     env_root = os.environ.get("NODECUE_REPO_ROOT", "").strip()
-    if env_root:
+    if env_root and (Path(env_root).expanduser() / "nodecue_agent").exists():
         return env_root
-    local_repo = Path("/Users/sj/github/NodeCue")
-    if local_repo.exists():
-        return str(local_repo)
     for parent in Path(__file__).resolve().parents:
         if (parent / "nodecue_agent").exists():
             return str(parent)
     return str(Path(__file__).resolve().parents[1])
+
+
+def _sidecar_pythonpath(sidecar_root: Path | str) -> str:
+    root = Path(sidecar_root).expanduser()
+    paths = [str(root)]
+    if str(root.parent) not in paths:
+        paths.append(str(root.parent))
+    return os.pathsep.join(paths)
 
 
 def _default_agent_python() -> str:
@@ -36,7 +41,7 @@ def _default_agent_python() -> str:
 
 def _default_env_file() -> str:
     env_file = Path(_default_sidecar_root()) / ".env"
-    return str(env_file) if env_file.exists() else ""
+    return str(env_file)
 
 
 _AGENT_PROCESS: subprocess.Popen | None = None
@@ -482,7 +487,7 @@ def _validate_agent_configuration(prefs) -> list[str]:
     if not errors and prefs.agent_provider != "mock":
         env = dict(os.environ)
         env.update({key: value for key, value in env_values.items() if key not in env})
-        env["PYTHONPATH"] = str(sidecar_root) + os.pathsep + env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = _sidecar_pythonpath(sidecar_root) + os.pathsep + env.get("PYTHONPATH", "")
         try:
             proc = subprocess.run(
                 [
@@ -694,7 +699,7 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
             env["NODECUE_AGENT_BASE_URL"] = prefs.agent_base_url.strip()
         if api_key_env:
             env["NODECUE_AGENT_API_KEY_ENV"] = api_key_env
-        env["PYTHONPATH"] = sidecar_root + os.pathsep + env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = _sidecar_pythonpath(sidecar_root) + os.pathsep + env.get("PYTHONPATH", "")
 
         stderr_file = _AGENT_STDERR_PATH.open("w", encoding="utf-8")
         try:

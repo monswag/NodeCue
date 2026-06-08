@@ -13,21 +13,23 @@ The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-n
 
 ## Quick Start
 
-1. Install the sidecar dependencies:
+1. Download the NodeCue release zip, for example `nodecue-v0.1.0-alpha.14-blender-addon.zip`.
+2. In Blender 5.1, open `Edit > Preferences > Add-ons > Install...`, select the zip, then enable `NodeCue`.
+3. Create a Python environment for the sidecar dependencies:
 
 ```bash
 python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-agent.txt
+.venv/bin/python -m pip install -r "/path/to/Blender/5.1/scripts/addons/nodecue/requirements-agent.txt"
 ```
 
-2. Copy NodeCue into Blender's add-ons directory:
+4. Create a small provider env file anywhere on your machine and point NodeCue preferences to it:
 
-```bash
-python3 scripts/install_addon.py --blender-version 5.1 --force
+```text
+OPENROUTER_API_KEY=...
+NODECUE_AGENT_PROVIDER=openrouter
+NODECUE_AGENT_MODEL=moonshotai/kimi-k2.6
 ```
 
-3. Copy the installed `nodecue.env.example` to `.env` in Blender's add-ons directory and set `OPENROUTER_API_KEY`.
-4. Enable the `nodecue` add-on in Blender.
 5. In NodeCue preferences, set `Sidecar Python` to your `.venv` Python and run Check Setup.
 6. Use the NodeCue panel to run Generate, Explain, or Modify.
 
@@ -39,9 +41,9 @@ To build a local release bundle zip:
 python3 scripts/build_release_bundle.py
 ```
 
-The bundle is a zip of this alpha snapshot, not a Blender one-click add-on zip. Unzip it first, then run `scripts/install_addon.py`.
+The output zip is installable through Blender's normal add-on installer.
 
-Pushing a `v*` tag creates a draft GitHub Release with the same bundle attached.
+Pushing a `v*` tag creates a draft GitHub Release with the same Blender add-on zip attached.
 
 Before making the repositories public, use [docs/release-checklist.md](docs/release-checklist.md).
 
@@ -73,7 +75,7 @@ Do not share API keys, private asset-library paths, or proprietary `.blend` file
 
 ## Status
 
-This is an alpha release candidate for public Geometry Nodes testing. It is usable for experiments, but not yet a polished one-click Blender add-on release. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
+This is an alpha release candidate for public Geometry Nodes testing. It is usable for experiments, but setup still requires a sidecar Python environment and a model provider key. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for the current alpha snapshot contents.
 

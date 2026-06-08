@@ -20,26 +20,27 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build alpha release bundle
-        run: python scripts/build_release_bundle.py --output "dist/nodecue-${GITHUB_REF_NAME}-alpha-bundle.zip"
+      - name: Build Blender add-on zip
+        run: python scripts/build_release_bundle.py --output "dist/nodecue-${GITHUB_REF_NAME}-blender-addon.zip"
 
-      - name: Verify alpha release bundle
+      - name: Verify Blender add-on zip
         run: |
-          bundle="dist/nodecue-${GITHUB_REF_NAME}-alpha-bundle.zip"
+          bundle="dist/nodecue-${GITHUB_REF_NAME}-blender-addon.zip"
           python -m zipfile -l "$bundle"
-          python -m zipfile -l "$bundle" | grep "NodeCue/nodecue/__init__.py"
-          python -m zipfile -l "$bundle" | grep "NodeCue/nodecue_agent/__init__.py"
-          python -m zipfile -l "$bundle" | grep "NodeCue/scripts/install_addon.py"
-          python -m zipfile -l "$bundle" | grep "NodeCue/.env.example"
+          python -m zipfile -l "$bundle" | grep "nodecue/__init__.py"
+          python -m zipfile -l "$bundle" | grep "nodecue/nodecue_agent/__init__.py"
+          python -m zipfile -l "$bundle" | grep "nodecue/requirements-agent.txt"
+          python -m zipfile -l "$bundle" | grep "nodecue/nodecue.env.example"
+          ! python -m zipfile -l "$bundle" | grep "scripts/install_addon.py"
           ! python -m zipfile -l "$bundle" | grep -E "(__pycache__|\\.pyc$|\\.env$|\\.blend1?$|\\.tgz$)"
 
       - name: Create draft GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          bundle="dist/nodecue-${GITHUB_REF_NAME}-alpha-bundle.zip"
+          bundle="dist/nodecue-${GITHUB_REF_NAME}-blender-addon.zip"
           gh release create "$GITHUB_REF_NAME" "$bundle" \
             --draft \
             --prerelease \
             --title "$GITHUB_REF_NAME" \
-            --notes "NodeCue alpha release bundle. Unzip it first, then run scripts/install_addon.py."
+            --notes "NodeCue alpha Blender add-on zip. Install it through Blender's normal Add-ons installer, then configure the sidecar Python and model provider."

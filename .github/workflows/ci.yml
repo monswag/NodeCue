@@ -27,20 +27,21 @@ jobs:
       - name: Run unit tests
         run: python -m pytest tests -q
 
-      - name: Build alpha release bundle
-        run: python scripts/build_release_bundle.py --output dist/nodecue-alpha-bundle.zip
+      - name: Build Blender add-on zip
+        run: python scripts/build_release_bundle.py --output dist/nodecue-blender-addon.zip
 
-      - name: Verify alpha release bundle
+      - name: Verify Blender add-on zip
         run: |
-          python -m zipfile -l dist/nodecue-alpha-bundle.zip
-          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/nodecue/__init__.py"
-          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/nodecue_agent/__init__.py"
-          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/scripts/install_addon.py"
-          python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep "NodeCue/.env.example"
-          ! python -m zipfile -l dist/nodecue-alpha-bundle.zip | grep -E "(__pycache__|\\.pyc$|\\.env$|\\.blend1?$|\\.tgz$)"
+          python -m zipfile -l dist/nodecue-blender-addon.zip
+          python -m zipfile -l dist/nodecue-blender-addon.zip | grep "nodecue/__init__.py"
+          python -m zipfile -l dist/nodecue-blender-addon.zip | grep "nodecue/nodecue_agent/__init__.py"
+          python -m zipfile -l dist/nodecue-blender-addon.zip | grep "nodecue/requirements-agent.txt"
+          python -m zipfile -l dist/nodecue-blender-addon.zip | grep "nodecue/nodecue.env.example"
+          ! python -m zipfile -l dist/nodecue-blender-addon.zip | grep "scripts/install_addon.py"
+          ! python -m zipfile -l dist/nodecue-blender-addon.zip | grep -E "(__pycache__|\\.pyc$|\\.env$|\\.blend1?$|\\.tgz$)"
 
-      - name: Upload alpha release bundle
+      - name: Upload Blender add-on zip
         uses: actions/upload-artifact@v4
         with:
-          name: nodecue-alpha-bundle
-          path: dist/nodecue-alpha-bundle.zip
+          name: nodecue-blender-addon
+          path: dist/nodecue-blender-addon.zip

@@ -13,10 +13,10 @@ Sidecar Python cannot import agents/openai/nodecue_agent
 Fix:
 
 1. Confirm the Python shown in `Sidecar Python` is the same environment where dependencies were installed.
-2. From the unzipped NodeCue folder or repository root, run:
+2. Install the included `requirements-agent.txt` into that Python environment:
 
 ```bash
-<sidecar-python> -m pip install -r requirements-agent.txt
+<sidecar-python> -m pip install -r "/path/to/Blender/5.1/scripts/addons/nodecue/requirements-agent.txt"
 ```
 
 3. Run Check Setup again.
@@ -31,12 +31,14 @@ nodecue_agent package not found
 
 Fix:
 
-- `Sidecar Root` should point to the installed add-ons directory that contains `nodecue_agent/`, not to `nodecue/` itself.
+- `Sidecar Root` should point to the installed `nodecue` add-on folder that contains `nodecue_agent/`.
 - On macOS Blender 5.1 this is usually:
 
 ```text
-~/Library/Application Support/Blender/5.1/scripts/addons
+~/Library/Application Support/Blender/5.1/scripts/addons/nodecue
 ```
+
+If you installed an earlier NodeCue build, Blender may keep the old saved preference. Manually set `Sidecar Root` to the installed `nodecue` folder after installing the new zip.
 
 ## Env File Is Missing
 
@@ -48,12 +50,7 @@ Missing API key
 
 Fix:
 
-1. Copy `nodecue.env.example` to `.env` in the same add-ons directory:
-
-```bash
-cp nodecue.env.example .env
-```
-
+1. Create a text file named `nodecue.env` anywhere convenient.
 2. Add your provider key:
 
 ```bash
@@ -62,7 +59,7 @@ NODECUE_AGENT_PROVIDER=openrouter
 NODECUE_AGENT_MODEL=moonshotai/kimi-k2.6
 ```
 
-3. Confirm `Env File` in Blender points to that `.env`.
+3. Confirm `Env File` in Blender points to that file.
 
 Do not paste API keys into GitHub issues.
 

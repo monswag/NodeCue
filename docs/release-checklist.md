@@ -4,7 +4,7 @@ Use this before making the private release repositories public.
 
 ## Repository Checks
 
-- Confirm both repositories are private until the first alpha bundle and skill package are ready:
+- Confirm both repositories are private until the first Blender add-on zip and skill package are ready:
   - `monswag/NodeCue`
   - `monswag/nodecue-blender-node-skills`
 - Confirm the repositories have:
@@ -29,17 +29,17 @@ find . -name '.env' -o -name '.DS_Store' -o -name '__pycache__' -o -name '*.pyc'
 python -m pytest tests/ -q
 ```
 
-- Build the alpha bundle:
+- Build the Blender add-on zip:
 
 ```bash
 python scripts/build_release_bundle.py
 ```
 
-- Verify the bundle contains `nodecue/`, `nodecue_agent/`, `docs/`, `scripts/`, `.env.example`, and no private artifacts.
+- Verify the zip contains `nodecue/__init__.py`, `nodecue/nodecue_agent/`, `nodecue/requirements-agent.txt`, `nodecue/nodecue.env.example`, and no private artifacts.
 - Create an alpha tag such as `v0.1.0-alpha.1`.
 - Let GitHub Actions create the draft release.
 - Review the draft release notes before publishing.
-- Keep the release notes clear that this is a Blender 5.1 Geometry Nodes alpha, not a polished one-click installer.
+- Keep the release notes clear that the add-on installs through Blender normally, but still needs sidecar Python dependencies and a model provider key.
 
 ## Skill Package Release
 
@@ -92,20 +92,14 @@ Run this immediately after making the repositories public and publishing the dra
 - Open both repositories from a signed-out or incognito browser:
   - `https://github.com/monswag/NodeCue`
   - `https://github.com/monswag/nodecue-blender-node-skills`
-- Confirm the NodeCue release page is public and shows the current alpha bundle.
-- Download the bundle from the public release page.
-- Unzip it and confirm these files are present:
-  - `README.md`
-  - `docs/quickstart.md`
-  - `docs/alpha-test-guide.md`
-  - `docs/external-agents.md`
-  - `docs/launch-announcement.md`
-  - `scripts/install_addon.py`
-- Run the installer from the unzipped bundle:
-
-```bash
-python3 scripts/install_addon.py --blender-version 5.1 --force
-```
+- Confirm the NodeCue release page is public and shows the current Blender add-on zip.
+- Download the zip from the public release page.
+- Install the zip through Blender's normal add-on installer.
+- Confirm the installed add-on folder contains:
+  - `nodecue/__init__.py`
+  - `nodecue/nodecue_agent/__init__.py`
+  - `nodecue/requirements-agent.txt`
+  - `nodecue/nodecue.env.example`
 
 - Confirm GitHub issues show the alpha feedback template.
 - Confirm the standalone skill checkout fallback works from a fresh directory:
