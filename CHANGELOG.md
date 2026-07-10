@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- One-click `Install Agent Dependencies` in the panel and add-on preferences: sidecar packages install into a NodeCue-managed `nodecue-deps` folder using the sidecar Python (Blender's own Python by default). No manual virtualenv needed.
+- Sidecar runtime requirements now ship inside the add-on package (`nodecue/requirements-agent.txt`) and no longer include test-only packages.
+- Repo-root `requirements-agent.txt` renamed to `requirements-dev.txt` (CI/test dependencies).
+- Removed hardcoded developer paths from addon defaults; `NODECUE_AGENT_PYTHON` overrides the sidecar Python.
+- Minimum Blender version raised to 5.0; docs state the Blender 5.0+ baseline.
+- Docs now say community blender-mcp instead of official Blender MCP.
+
 ## 0.1.0-alpha.14 - 2026-06-08
 
 This snapshot is preparing NodeCue for a first public alpha. The goal is a usable Geometry Nodes-focused Blender add-on that early users can install, test, and report issues against.

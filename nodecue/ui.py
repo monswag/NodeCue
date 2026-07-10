@@ -10,6 +10,8 @@ from datetime import datetime
 
 import bpy
 
+from nodecue import deps as agent_deps
+
 
 DEFAULT_SKILL_PATH = str(Path(__file__).resolve().parent / "skills" / "geometry-nodes")
 
@@ -24,11 +26,25 @@ def _default_sidecar_root() -> str:
     return str(Path(__file__).resolve().parents[1])
 
 
+def _user_scripts_dir() -> str:
+    try:
+        return bpy.utils.user_resource("SCRIPTS") or ""
+    except Exception:
+        return ""
+
+
+def _deps_dir() -> Path:
+    return agent_deps.deps_dir(_user_scripts_dir() or None)
+
+
 def _sidecar_pythonpath(sidecar_root: Path | str) -> str:
     root = Path(sidecar_root).expanduser()
     paths = [str(root)]
     if str(root.parent) not in paths:
         paths.append(str(root.parent))
+    dep_dir = _deps_dir()
+    if dep_dir.is_dir():
+        paths.append(str(dep_dir))
     return os.pathsep.join(paths)
 
 
@@ -49,6 +65,8 @@ _AGENT_REPORT_PATH: Path | None = None
 _AGENT_STDERR_PATH: Path | None = None
 _AGENT_ARTIFACT_DIR: Path | None = None
 _AGENT_CANCEL_REQUESTED = False
+_DEPS_PROCESS: subprocess.Popen | None = None
+_DEPS_LOG_PATH: Path | None = None
 
 
 def _default_artifact_root() -> str:
@@ -228,6 +246,16 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
         if self.agent_provider != "mock":
             layout.prop(self, "agent_api_key_env")
         layout.prop(self, "agent_python")
+        dep_dir = _deps_dir()
+        row = layout.row(align=True)
+        row.operator("gn_ai.install_agent_deps", icon="IMPORT")
+        if agent_deps.deps_installed(dep_dir):
+            layout.label(text=f"Sidecar dependencies installed: {dep_dir}", icon="CHECKMARK")
+        else:
+            layout.label(
+                text="Sidecar dependencies not installed - press Install Agent Dependencies",
+                icon="ERROR",
+            )
         layout.prop(self, "agent_sidecar_root")
         layout.prop(self, "agent_env_file")
         layout.prop(self, "agent_timeout_seconds")
@@ -439,6 +467,7 @@ def _agent_setup_report(prefs) -> tuple[bool, str]:
         f"sidecar root: {prefs.agent_sidecar_root or _default_sidecar_root()}",
         f"env file: {prefs.agent_env_file or '(none)'}",
         f"api key env: {api_key_env or '(not required)'}",
+        f"deps dir: {_deps_dir()} ({'installed' if agent_deps.deps_installed(_deps_dir()) else 'not installed'})",
         f"skill path: {prefs.skill_path}",
         f"bridge: {'running on ' + str(srv.port) if srv and srv.is_running else 'stopped'}",
     ]
@@ -506,6 +535,10 @@ def _validate_agent_configuration(prefs) -> list[str]:
                 errors.append(
                     "Sidecar Python cannot import agents/openai/nodecue_agent: "
                     + (proc.stderr or proc.stdout)[-500:]
+                )
+                errors.append(
+                    "Press 'Install Agent Dependencies' in the NodeCue panel or "
+                    "add-on preferences, then run Check Setup again."
                 )
         except Exception as exc:
             errors.append(f"Sidecar dependency check failed: {exc}")
@@ -594,6 +627,98 @@ def _poll_agent_process() -> float | None:
     _AGENT_PROCESS = None
     _AGENT_CANCEL_REQUESTED = False
     return None
+
+
+def _poll_deps_process() -> float | None:
+    global _DEPS_PROCESS, _DEPS_LOG_PATH
+
+    if _DEPS_PROCESS is None:
+        return None
+    if _DEPS_PROCESS.poll() is None:
+        try:
+            bpy.context.scene.gn_ai_props.status = "Installing sidecar dependencies..."
+        except Exception:
+            pass
+        return 1.0
+
+    returncode = _DEPS_PROCESS.returncode
+    log_tail = ""
+    if _DEPS_LOG_PATH and _DEPS_LOG_PATH.exists():
+        try:
+            log_tail = _DEPS_LOG_PATH.read_text(encoding="utf-8")[-2000:]
+        except Exception:
+            log_tail = ""
+
+    try:
+        props = bpy.context.scene.gn_ai_props
+        if returncode == 0:
+            props.status = "Sidecar dependencies installed"
+            props.agent_output = "Dependency install finished. Run Check Setup to verify."
+        else:
+            props.status = "Sidecar dependency install failed"
+            props.agent_output = log_tail or f"pip exited with code {returncode}"
+    except Exception:
+        pass
+
+    _DEPS_PROCESS = None
+    return None
+
+
+class GN_AI_OT_InstallAgentDeps(bpy.types.Operator):
+    bl_idname = "gn_ai.install_agent_deps"
+    bl_label = "Install Agent Dependencies"
+    bl_description = (
+        "Download the sidecar's Python packages into a NodeCue-managed directory "
+        "using the sidecar Python (no manual virtualenv needed; requires network)"
+    )
+
+    def execute(self, context):
+        global _DEPS_PROCESS, _DEPS_LOG_PATH
+
+        props = context.scene.gn_ai_props
+        prefs = context.preferences.addons[__package__].preferences
+        if _DEPS_PROCESS is not None and _DEPS_PROCESS.poll() is None:
+            self.report({"WARNING"}, "Dependency install is already running")
+            return {"CANCELLED"}
+        if _AGENT_PROCESS is not None and _AGENT_PROCESS.poll() is None:
+            self.report({"WARNING"}, "Stop the running NodeCue agent first")
+            return {"CANCELLED"}
+
+        requirements = agent_deps.requirements_path()
+        if not requirements.exists():
+            msg = f"Bundled requirements file missing: {requirements}"
+            props.status = msg
+            self.report({"ERROR"}, msg)
+            return {"CANCELLED"}
+
+        python_path = (prefs.agent_python or _default_agent_python()).strip()
+        target = _deps_dir()
+        target.mkdir(parents=True, exist_ok=True)
+        _DEPS_LOG_PATH = target / "install.log"
+        cmd = agent_deps.pip_install_command(python_path, target, requirements)
+
+        log_file = _DEPS_LOG_PATH.open("w", encoding="utf-8")
+        try:
+            _DEPS_PROCESS = subprocess.Popen(
+                cmd,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+        except Exception as exc:
+            log_file.close()
+            msg = f"Failed to start dependency install: {exc}"
+            props.status = msg
+            self.report({"ERROR"}, msg)
+            return {"CANCELLED"}
+        log_file.close()
+
+        props.status = "Installing sidecar dependencies..."
+        props.agent_output = f"Installing into {target}\nLog: {_DEPS_LOG_PATH}"
+        if not bpy.app.timers.is_registered(_poll_deps_process):
+            bpy.app.timers.register(_poll_deps_process, first_interval=1.0, persistent=False)
+        self.report({"INFO"}, "Dependency install started")
+        return {"FINISHED"}
 
 
 class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
@@ -799,6 +924,8 @@ class GN_AI_PT_MainPanel(bpy.types.Panel):
         layout.separator()
         layout.prop(props, "mode")
         layout.prop(props, "prompt")
+        if not agent_deps.deps_installed(_deps_dir()):
+            layout.operator("gn_ai.install_agent_deps", icon="IMPORT")
         row = layout.row(align=True)
         row.operator("gn_ai.check_agent_setup", icon="CHECKMARK")
         row = layout.row(align=True)
@@ -836,6 +963,7 @@ CLASSES = (
     GN_AI_OT_StartSocketServer,
     GN_AI_OT_StopSocketServer,
     GN_AI_OT_ScanAssetLibraries,
+    GN_AI_OT_InstallAgentDeps,
     GN_AI_OT_RunAgentPrototype,
     GN_AI_OT_CheckAgentSetup,
     GN_AI_OT_CancelAgentRun,

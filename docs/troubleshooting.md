@@ -12,14 +12,14 @@ Sidecar Python cannot import agents/openai/nodecue_agent
 
 Fix:
 
-1. Confirm the Python shown in `Sidecar Python` is the same environment where dependencies were installed.
-2. Install the included `requirements-agent.txt` into that Python environment:
+1. Press `Install Agent Dependencies` in the NodeCue panel or add-on preferences and wait for `Sidecar dependencies installed`. The install log is written to `install.log` inside the `nodecue-deps` folder.
+2. Run Check Setup again.
+
+Manual fallback (offline machines or custom Python environments): install the included `requirements-agent.txt` into the Python shown in `Sidecar Python`:
 
 ```bash
 <sidecar-python> -m pip install -r "/path/to/Blender/5.1/scripts/addons/nodecue/requirements-agent.txt"
 ```
-
-3. Run Check Setup again.
 
 ## Sidecar Root Is Wrong
 

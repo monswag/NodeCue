@@ -6,5 +6,6 @@
 - Built-in agent quality depends heavily on the configured model.
 - OpenRouter and OpenAI-compatible endpoints are supported first; ChatGPT Plus / Claude Pro OAuth is not included.
 - Asset library reuse is early and should be treated as experimental.
+- `Install Agent Dependencies` downloads packages from PyPI once; fully offline machines need the manual pip fallback in the troubleshooting guide.
 - Real model, blender-mcp, and Blender UI smoke tests are manual and opt-in.
 - The built-in skill copy is vendored from the standalone skill package and may lag until synchronized.

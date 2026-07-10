@@ -15,13 +15,7 @@ The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-n
 
 1. Download the NodeCue release zip, for example `nodecue-v0.1.0-alpha.14-blender-addon.zip`.
 2. In Blender 5.0 or newer, open `Edit > Preferences > Add-ons > Install...`, select the zip, then enable `NodeCue`.
-3. Create a Python environment for the sidecar dependencies:
-
-```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r "/path/to/Blender/5.1/scripts/addons/nodecue/requirements-agent.txt"
-```
-
+3. In the NodeCue panel or add-on preferences, press `Install Agent Dependencies` and wait for `Sidecar dependencies installed` (downloads packages once; no terminal or virtualenv needed).
 4. Create a small provider env file anywhere on your machine and point NodeCue preferences to it:
 
 ```text
@@ -30,7 +24,7 @@ NODECUE_AGENT_PROVIDER=openrouter
 NODECUE_AGENT_MODEL=moonshotai/kimi-k2.6
 ```
 
-5. In NodeCue preferences, set `Sidecar Python` to your `.venv` Python and run Check Setup.
+5. Run Check Setup in the NodeCue panel.
 6. Use the NodeCue panel to run Generate, Explain, or Modify.
 
 Detailed setup is in [docs/quickstart.md](docs/quickstart.md).
@@ -75,7 +69,7 @@ Do not share API keys, private asset-library paths, or proprietary `.blend` file
 
 ## Status
 
-This is an alpha release candidate for public Geometry Nodes testing. It is usable for experiments, but setup still requires a sidecar Python environment and a model provider key. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
+This is an alpha release candidate for public Geometry Nodes testing. It is usable for experiments; setup needs a one-time dependency download from the add-on and a model provider key. Current limits are tracked in [docs/known-limitations.md](docs/known-limitations.md), and the release/business direction is in [docs/public-alpha.md](docs/public-alpha.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for the current alpha snapshot contents.
 

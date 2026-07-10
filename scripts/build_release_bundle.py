@@ -12,12 +12,12 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = REPO_ROOT / "dist" / "nodecue-blender-addon.zip"
 ADDON_DIR = "nodecue"
 
+# nodecue/requirements-agent.txt ships inside the package itself.
 PACKAGE_FILES = {
     ".env.example": f"{ADDON_DIR}/nodecue.env.example",
     "CHANGELOG.md": f"{ADDON_DIR}/CHANGELOG.md",
     "LICENSE": f"{ADDON_DIR}/LICENSE",
     "README.md": f"{ADDON_DIR}/README.md",
-    "requirements-agent.txt": f"{ADDON_DIR}/requirements-agent.txt",
 }
 
 PACKAGE_DIRS = {

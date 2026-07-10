@@ -3,7 +3,7 @@
 ## Requirements
 
 - Blender 5.0+ (most tested on 5.1)
-- Python 3.11+ environment that can run the NodeCue sidecar
+- Network access once, to download sidecar packages
 - OpenRouter API key or another OpenAI-compatible endpoint
 
 ## 1. Install the Blender Add-on
@@ -39,9 +39,17 @@ On macOS Blender 5.1, the installed add-on folder is usually:
 ~/Library/Application Support/Blender/5.1/scripts/addons/nodecue/
 ```
 
-## 2. Install Sidecar Python Dependencies
+## 2. Install Agent Dependencies (One Click)
 
-NodeCue runs model calls in a separate Python sidecar. This is the one setup step that still needs a Python environment in the current alpha.
+NodeCue runs model calls in a separate Python sidecar. Its packages install from inside Blender — no terminal or virtualenv needed:
+
+1. Open the NodeCue panel in the 3D View sidebar (or NodeCue Add-on Preferences).
+2. Press `Install Agent Dependencies`.
+3. Wait until the status shows `Sidecar dependencies installed`. This downloads packages from PyPI once.
+
+The packages go into a NodeCue-managed folder (`nodecue-deps` under Blender's user scripts directory), installed with Blender's own Python. Nothing outside that folder is touched.
+
+Advanced fallback: if your machine blocks the download or you prefer your own Python environment, create one manually and point `Sidecar Python` in preferences at it:
 
 ```bash
 python3 -m venv .venv
@@ -71,9 +79,9 @@ There is also a sample file at `nodecue/nodecue.env.example` inside the installe
 ## 4. Configure in Blender
 
 1. Open Add-on Preferences for NodeCue.
-2. Set `Sidecar Python` to the Python environment from step 2.
-3. Confirm `Sidecar Root` points to the installed `nodecue` add-on folder.
-4. Set `Env File` to your `nodecue.env` file.
+2. Set `Env File` to your `nodecue.env` file.
+3. Leave `Sidecar Python` at its default (Blender's own Python) unless you created a manual environment in step 2.
+4. Confirm `Sidecar Root` points to the installed `nodecue` add-on folder.
 5. Open the NodeCue panel in the 3D View sidebar.
 6. Run Check Setup.
 
@@ -95,7 +103,7 @@ Generated reports and saved `.blend` artifacts are local debugging aids. Do not 
 
 ## Troubleshooting
 
-- If Check Setup cannot import `agents` or `openai`, install the included `requirements-agent.txt` into the Python shown in `Sidecar Python`.
+- If Check Setup cannot import `agents` or `openai`, press `Install Agent Dependencies` and wait for it to finish, then run Check Setup again.
 - If the model is missing, set `NODECUE_AGENT_MODEL` in `.env` or in Add-on Preferences.
 - If the API key is missing, confirm `OPENROUTER_API_KEY` exists in the selected `.env`.
 - If the bridge is stopped, press Start Bridge or run Check Setup again.

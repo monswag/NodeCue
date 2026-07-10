@@ -12,7 +12,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 COPY_DIRS = ("nodecue", "nodecue_agent")
-COPY_FILES = ("requirements-agent.txt",)
 
 
 def default_addons_dir(version: str) -> Path:
@@ -47,9 +46,6 @@ def main() -> int:
 
     for name in COPY_DIRS:
         copy_dir(REPO_ROOT / name, addons_dir / name, args.force)
-
-    for name in COPY_FILES:
-        shutil.copy2(REPO_ROOT / name, addons_dir / name)
 
     env_example = REPO_ROOT / ".env.example"
     if env_example.exists():

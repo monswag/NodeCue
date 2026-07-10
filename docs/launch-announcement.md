@@ -9,7 +9,7 @@ NodeCue is an early Blender 5.0+ add-on for learning, building, modifying, and e
 
 The first alpha is intentionally narrow: Geometry Nodes only, OpenRouter/OpenAI-compatible model setup, Generate/Explain/Modify modes, local report JSON, and optional saved .blend artifacts for debugging.
 
-The add-on installs through Blender's normal Add-ons installer. The goal is to learn where real Blender users get stuck: sidecar Python setup, model choice, graph quality, explanation quality, or node execution.
+The add-on installs through Blender's normal Add-ons installer, and its Python dependencies install with one click from the add-on itself. The goal is to learn where real Blender users get stuck: setup, model choice, graph quality, explanation quality, or node execution.
 ```
 
 ## Blender / Community Forum Post
