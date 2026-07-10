@@ -605,7 +605,15 @@ def build_sdk_model(provider: ProviderConfig):
     except Exception as exc:
         raise RuntimeError("Install openai-agents to run the SDK-backed agent") from exc
 
-    if provider.kind not in {"openai", "openai-compatible", "openrouter"}:
+    # anthropic/anthropic-compatible route through Anthropic's OpenAI-compatible
+    # endpoint (ANTHROPIC_BASE_URL + /chat/completions), so the same client works.
+    if provider.kind not in {
+        "openai",
+        "openai-compatible",
+        "openrouter",
+        "anthropic",
+        "anthropic-compatible",
+    }:
         raise RuntimeError(f"Agents SDK runner does not support provider: {provider.kind}")
     if not provider.model:
         raise RuntimeError("missing NODECUE_AGENT_MODEL")

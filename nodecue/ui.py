@@ -489,7 +489,13 @@ def _validate_agent_configuration(prefs) -> list[str]:
 
     if prefs.agent_provider == "mock":
         errors.append("Mock provider is not supported by the SDK-backed plugin runner.")
-    if prefs.agent_provider not in {"openrouter", "openai", "openai-compatible"}:
+    if prefs.agent_provider not in {
+        "openrouter",
+        "openai",
+        "openai-compatible",
+        "anthropic",
+        "anthropic-compatible",
+    }:
         errors.append(
             f"Provider '{prefs.agent_provider}' is not supported by the SDK-backed plugin runner yet."
         )
