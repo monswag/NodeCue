@@ -43,7 +43,7 @@ I also split out the Geometry Nodes skill as a standalone package for agents suc
 
 The skill is not a fixed list of graph templates. It is a knowledge package about Geometry Nodes reasoning: node roles, sockets, field/data-flow relationships, verified patterns, readback repair, and teachable frame organization.
 
-The npm package is planned as @nodecue/blender-node-skills. Until npm is published, use the public GitHub checkout fallback from the README.
+Install is a plain git checkout: clone the repository and copy the skill folder into your agent's skills directory. See the README for exact commands.
 ```
 
 ## Optional Paid Help Wording

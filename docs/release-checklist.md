@@ -14,7 +14,7 @@ Use this before making the private release repositories public.
   - `SECURITY.md`
   - `CHANGELOG.md`
   - issue templates
-  - CI workflows
+  - CI workflows (add-on repo; the skill repo is content-only and has no CI)
 - Confirm no private local files are present:
 
 ```bash
@@ -41,36 +41,16 @@ python scripts/build_release_bundle.py
 - Review the draft release notes before publishing.
 - Keep the release notes clear that the add-on installs through Blender normally, but still needs sidecar Python dependencies and a model provider key.
 
-## Skill Package Release
+## Skill Repository Release
 
-- Run the install smoke test:
-
-```bash
-npm test
-```
-
-- Verify package contents:
-
-```bash
-npm pack --dry-run
-```
-
-- Run the manual publish workflow with `publish=false` first.
-- Configure `NPM_TOKEN` only when ready to publish.
-- Publish with the `alpha` npm dist-tag until community feedback is stable.
-- Verify install from npm:
-
-```bash
-npx @nodecue/blender-node-skills install --force
-```
-
-- If npm publishing is still pending, verify the checkout fallback:
+- Verify the checkout install from a fresh directory:
 
 ```bash
 git clone https://github.com/monswag/nodecue-blender-node-skills.git
-cd nodecue-blender-node-skills
-node bin/install.js install
+cp -r nodecue-blender-node-skills/skills/geometry-nodes /tmp/skill-install-check/
 ```
+
+- Confirm `SKILL.md` renders correctly on GitHub and its rules/patterns links resolve.
 
 ## Public Launch Notes
 
@@ -102,15 +82,12 @@ Run this immediately after making the repositories public and publishing the dra
   - `nodecue/nodecue.env.example`
 
 - Confirm GitHub issues show the alpha feedback template.
-- Confirm the standalone skill checkout fallback works from a fresh directory:
+- Confirm the standalone skill checkout works from a fresh directory:
 
 ```bash
 git clone https://github.com/monswag/nodecue-blender-node-skills.git
-cd nodecue-blender-node-skills
-node bin/install.js install
+cp -r nodecue-blender-node-skills/skills/geometry-nodes /tmp/skill-install-check/
 ```
-
-- If npm is not published yet, confirm public docs clearly say to use the checkout fallback.
 
 ## First Community Ask
 

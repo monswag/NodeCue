@@ -16,7 +16,7 @@ NodeCue should be public only when a new user can install it, run one Geometry N
 - Quickstart can be followed from a clean checkout.
 - Check Setup succeeds from the Blender panel with a configured model provider.
 - Generate, Explain, and Modify each pass at least one real-model smoke scenario.
-- The standalone skill package installs with `npx @nodecue/blender-node-skills install`, or from a public checkout while npm publishing is pending.
+- The standalone skill installs from a public checkout: clone and copy `skills/geometry-nodes/` into the agent's skills directory.
 - Known limitations are explicit, especially model quality, API-key provider setup, and early asset reuse.
 
 ## First Feedback Loop

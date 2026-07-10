@@ -14,10 +14,9 @@ Current prepared skill candidate variables:
 
 ```bash
 SKILL_TAG=v0.1.0-alpha.1
-SKILL_PACKAGE=@nodecue/blender-node-skills@0.1.0-alpha.1
 ```
 
-npm status is not published yet.
+The skill repository is distributed as a plain git checkout; there is no npm package.
 
 ## Minimum Public Alpha Switch
 
@@ -43,25 +42,6 @@ Recommended first order:
 1. GitHub release page / repository README.
 2. Blender community forum or relevant Discord.
 3. External-agent/skill-focused post.
-
-## npm Follow-Up
-
-Do this after the GitHub checkout fallback has been verified publicly:
-
-```bash
-gh secret set NPM_TOKEN --repo monswag/nodecue-blender-node-skills
-gh workflow run publish.yml --repo monswag/nodecue-blender-node-skills -f publish=false -f tag=alpha
-```
-
-After the dry-run workflow passes:
-
-```bash
-gh workflow run publish.yml --repo monswag/nodecue-blender-node-skills -f publish=true -f tag=alpha
-npm view @nodecue/blender-node-skills version dist-tags --json
-npx @nodecue/blender-node-skills install --force
-```
-
-If the `@nodecue` npm scope is unavailable, stop and rename the package, README commands, docs, and release notes together. Do not publish under an improvised name.
 
 ## Older Draft Releases
 

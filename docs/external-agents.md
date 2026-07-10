@@ -8,18 +8,12 @@ Recommended external workflow:
 2. Connect the agent to Blender through the community blender-mcp project. Blender has no official MCP today; if the Blender Foundation ships one, it becomes the preferred path.
 3. Let the agent read the skill and execute Blender Python through MCP.
 
-After the npm package is published:
-
-```bash
-npx @nodecue/blender-node-skills install
-```
-
-If npm publishing is still pending, install from a public checkout:
+Install the skill by copying it into your agent's skills directory:
 
 ```bash
 git clone https://github.com/monswag/nodecue-blender-node-skills.git
-cd nodecue-blender-node-skills
-node bin/install.js install
+cp -r nodecue-blender-node-skills/skills/geometry-nodes ~/.claude/skills/   # Claude Code
+# or ~/.codex/skills/ for Codex, or wherever your agent loads skills from
 ```
 
 The shared skill describes Geometry Nodes reasoning, node relationships, socket safety, readback repair, and teachable frame organization. It does not require NodeCue's internal action schema.
