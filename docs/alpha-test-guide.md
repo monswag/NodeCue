@@ -6,7 +6,7 @@ The alpha is not scored by one perfect node graph. Good feedback should show whe
 
 ## Before Testing
 
-- Use Blender 5.1.
+- Use Blender 5.0 or newer (most tested on 5.1).
 - Run Check Setup in the NodeCue panel.
 - Confirm your provider/model is configured.
 - Start from a simple scene unless the test says otherwise.
@@ -76,7 +76,7 @@ What to inspect:
 
 ## Optional External Agent Comparison
 
-Install the standalone skill package, then ask Codex, Claude, or another external agent to solve Test 1 through the official Blender MCP.
+Install the standalone skill package, then ask Codex, Claude, or another external agent to solve Test 1 through the community blender-mcp project.
 
 After the npm package is published:
 

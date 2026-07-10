@@ -5,7 +5,7 @@ Use these drafts after the repository is public and the current draft release is
 ## GitHub Release / README Short Intro
 
 ```text
-NodeCue is an early Blender 5.1 add-on for learning, building, modifying, and explaining Geometry Nodes with a focused local agent.
+NodeCue is an early Blender 5.0+ add-on for learning, building, modifying, and explaining Geometry Nodes with a focused local agent.
 
 The first alpha is intentionally narrow: Geometry Nodes only, OpenRouter/OpenAI-compatible model setup, Generate/Explain/Modify modes, local report JSON, and optional saved .blend artifacts for debugging.
 
@@ -20,11 +20,11 @@ I am opening an alpha for NodeCue, a Blender add-on focused on Geometry Nodes le
 The idea is not to replace full agents like Claude or Codex. NodeCue is narrower: it runs inside Blender, uses a controlled set of node operations, and tries to create teachable node graphs with frames and explanations.
 
 Current alpha scope:
-- Blender 5.1 Geometry Nodes only
+- Blender 5.0+ Geometry Nodes only
 - Generate, Explain, and Modify modes
 - OpenRouter or another OpenAI-compatible model endpoint
 - local report JSON and optional saved .blend artifacts
-- a standalone Geometry Nodes skill that external agents can also use with the official Blender MCP
+- a standalone Geometry Nodes skill that external agents can also use with the community blender-mcp
 
 Useful feedback:
 - whether you could install it from the quickstart
@@ -39,7 +39,7 @@ Please do not post API keys, private asset-library paths, or unreleasable produc
 ## Standalone Skill Package Post
 
 ```text
-I also split out the Geometry Nodes skill as a standalone package for agents such as Codex, Claude, or other tools that can control Blender through the official MCP.
+I also split out the Geometry Nodes skill as a standalone package for agents such as Codex, Claude, or other tools that can control Blender through the community blender-mcp.
 
 The skill is not a fixed list of graph templates. It is a knowledge package about Geometry Nodes reasoning: node roles, sockets, field/data-flow relationships, verified patterns, readback repair, and teachable frame organization.
 

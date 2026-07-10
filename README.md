@@ -4,7 +4,7 @@ NodeCue is a Blender add-on prototype for learning, building, modifying, and exp
 
 The current alpha is intentionally narrow:
 
-- Blender 5.1 add-on package: `nodecue/`
+- Blender 5.0+ add-on package (most tested on 5.1): `nodecue/`
 - local sidecar agent package: `nodecue_agent/`
 - built-in Geometry Nodes skill snapshot: `nodecue/skills/geometry-nodes/`
 - OpenRouter / OpenAI-compatible model configuration
@@ -14,7 +14,7 @@ The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-n
 ## Quick Start
 
 1. Download the NodeCue release zip, for example `nodecue-v0.1.0-alpha.14-blender-addon.zip`.
-2. In Blender 5.1, open `Edit > Preferences > Add-ons > Install...`, select the zip, then enable `NodeCue`.
+2. In Blender 5.0 or newer, open `Edit > Preferences > Add-ons > Install...`, select the zip, then enable `NodeCue`.
 3. Create a Python environment for the sidecar dependencies:
 
 ```bash
@@ -49,7 +49,7 @@ Before making the repositories public, use [docs/release-checklist.md](docs/rele
 
 ## External Agents
 
-Codex, Claude, and other agents can use the standalone Geometry Nodes skill with the official Blender MCP. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
+Codex, Claude, and other agents can use the standalone Geometry Nodes skill with the community blender-mcp project. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
 
 See [docs/external-agents.md](docs/external-agents.md).
 

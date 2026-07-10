@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Blender 5.1
+- Blender 5.0+ (most tested on 5.1)
 - Python 3.11+ environment that can run the NodeCue sidecar
 - OpenRouter API key or another OpenAI-compatible endpoint
 
@@ -16,7 +16,7 @@ nodecue-v0.1.0-alpha.14-blender-addon.zip
 
 Install it through Blender:
 
-1. Open Blender 5.1.
+1. Open Blender 5.0 or newer.
 2. Open `Edit > Preferences > Add-ons`.
 3. Press `Install...`.
 4. Select the NodeCue release zip.
