@@ -4,7 +4,7 @@ bl_info = {
     "name": "NodeCue",
     "author": "NodeCue",
     "version": (0, 2, 0),
-    "blender": (4, 0, 0),
+    "blender": (5, 0, 0),
     "location": "View3D > Sidebar > NodeCue",
     "description": "AI-assisted node learning, generation, and validation for Blender",
     "category": "Node",

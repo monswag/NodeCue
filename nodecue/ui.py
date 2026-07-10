@@ -33,9 +33,9 @@ def _sidecar_pythonpath(sidecar_root: Path | str) -> str:
 
 
 def _default_agent_python() -> str:
-    conda_python = Path("/Users/sj/miniconda3/envs/blender/bin/python")
-    if conda_python.exists():
-        return str(conda_python)
+    env_python = os.environ.get("NODECUE_AGENT_PYTHON", "").strip()
+    if env_python and Path(env_python).expanduser().exists():
+        return env_python
     return sys.executable
 
 
