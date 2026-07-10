@@ -592,6 +592,24 @@ def _agent_reasoning_effort(default: str = "none") -> str:
     return value if value in {"none", "minimal", "low", "medium", "high"} else default
 
 
+def _run_timeout_seconds(provider: ProviderConfig) -> int:
+    """Whole-run timeout for a multi-turn agent run.
+
+    provider.timeout_seconds is a per-request budget; a 20+ turn build loop
+    needs far more than one request's worth of time.
+    """
+    override = _env_int("NODECUE_AGENT_RUN_TIMEOUT_SECONDS", 0)
+    if override > 0:
+        return override
+    return max(600, provider.timeout_seconds * 5)
+
+
+def _format_run_error(exc: BaseException) -> str:
+    text = str(exc).strip()
+    name = type(exc).__name__
+    return f"{name}: {text}" if text else name
+
+
 def build_sdk_model(provider: ProviderConfig):
     """Build an OpenAI Agents SDK chat-completions model for NodeCue."""
 
@@ -1462,13 +1480,19 @@ async def run_sdk_geometry_agent(
     user_input = f"Mode: {mode}\nPrompt: {prompt}"
     run_error = None
     result = None
+    run_timeout = _run_timeout_seconds(provider)
     try:
         result = await asyncio.wait_for(
             Runner.run(agent, user_input, max_turns=max_turns),
-            timeout=provider.timeout_seconds,
+            timeout=run_timeout,
+        )
+    except asyncio.TimeoutError:
+        run_error = (
+            f"agent run timed out after {run_timeout}s "
+            "(set NODECUE_AGENT_RUN_TIMEOUT_SECONDS to override)"
         )
     except Exception as exc:
-        run_error = str(exc)
+        run_error = _format_run_error(exc)
 
     readback_result = session.final_readback()
     readback = readback_result
@@ -1689,13 +1713,19 @@ async def run_sdk_geometry_agent_on_socket(
 
     run_error = None
     result = None
+    run_timeout = _run_timeout_seconds(provider)
     try:
         result = await asyncio.wait_for(
             Runner.run(agent, user_input, max_turns=max_turns),
-            timeout=provider.timeout_seconds,
+            timeout=run_timeout,
+        )
+    except asyncio.TimeoutError:
+        run_error = (
+            f"agent run timed out after {run_timeout}s "
+            "(set NODECUE_AGENT_RUN_TIMEOUT_SECONDS to override)"
         )
     except Exception as exc:
-        run_error = str(exc)
+        run_error = _format_run_error(exc)
 
     readback_result = session.final_readback()
     readback = readback_result
