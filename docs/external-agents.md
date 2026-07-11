@@ -5,7 +5,7 @@ NodeCue is not required for external agents to control Blender.
 Recommended external workflow:
 
 1. Install the standalone `nodecue-blender-node-skills` package.
-2. Connect the agent to Blender through the community blender-mcp project. Blender has no official MCP today; if the Blender Foundation ships one, it becomes the preferred path.
+2. Connect the agent to Blender through an MCP server. Prefer Blender's official MCP server from Blender Lab (https://www.blender.org/lab/mcp-server/, bundled from Blender 5.2 LTS and available as an add-on); the community blender-mcp project also works.
 3. Let the agent read the skill and execute Blender Python through MCP.
 
 Install the skill by copying it into your agent's skills directory:

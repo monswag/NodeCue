@@ -70,7 +70,7 @@ In NodeCue Add-on Preferences:
 2. Set `Model`, for example `moonshotai/kimi-k2.6`.
 3. Paste your provider key into `API Key`.
 
-The key is stored in Blender's preferences file in plain text and is passed to the sidecar only through environment variables. If you prefer file-based secrets, open `Advanced` and point `Env File` at a `nodecue.env` file instead (sample at `nodecue/nodecue.env.example`). When a key is available from several places, the priority is: OS environment, then the `API Key` field, then the `Env File`.
+The key is stored in Blender's preferences file in plain text and is passed to the sidecar only through environment variables. OS-keychain storage is planned. Advanced users can instead supply the key through the OS environment or an `Env File`; those take priority in that order.
 
 ## 4. Run Check Setup
 

@@ -17,7 +17,7 @@ For every new alpha issue:
 - `model-provider`: OpenRouter, OpenAI-compatible endpoint, local model endpoint, model timeout, or model output format.
 - `graph-quality`: generated or modified Geometry Nodes graph is structurally wrong, disconnected, or hard to use.
 - `explanation-quality`: explanation is inaccurate, too shallow, missing readback details, or frames are unhelpful.
-- `external-agent`: Codex, Claude, community blender-mcp, or standalone skill workflow.
+- `external-agent`: Codex, Claude, a Blender MCP server (official or community), or standalone skill workflow.
 - `asset-library`: asset-library permission, node-group reuse, indexing, or private library behavior.
 - `support-business`: setup help, consulting, sponsorship, or paid support discussion.
 - `release-blocker`: anything that should stop a public release or announcement.

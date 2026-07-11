@@ -36,7 +36,7 @@ Before making the repositories public, use [docs/release-checklist.md](docs/rele
 
 ## External Agents
 
-Codex, Claude, and other agents can use the standalone Geometry Nodes skill with the community blender-mcp project. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
+Codex, Claude, and other agents can use the standalone Geometry Nodes skill with Blender's official MCP server (Blender Lab) or the community blender-mcp project. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
 
 See [docs/external-agents.md](docs/external-agents.md).
 

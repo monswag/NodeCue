@@ -24,7 +24,7 @@ Current alpha scope:
 - Generate, Explain, and Modify modes
 - OpenRouter or another OpenAI-compatible model endpoint
 - local report JSON and optional saved .blend artifacts
-- a standalone Geometry Nodes skill that external agents can also use with the community blender-mcp
+- a standalone Geometry Nodes skill that external agents can also use with Blender's official MCP or the community blender-mcp
 
 Useful feedback:
 - whether you could install it from the quickstart
@@ -39,7 +39,7 @@ Please do not post API keys, private asset-library paths, or unreleasable produc
 ## Standalone Skill Package Post
 
 ```text
-I also split out the Geometry Nodes skill as a standalone package for agents such as Codex, Claude, or other tools that can control Blender through the community blender-mcp.
+I also split out the Geometry Nodes skill as a standalone package for agents such as Codex, Claude, or other tools that can control Blender through an MCP server (Blender's official Lab MCP or the community blender-mcp).
 
 The skill is not a fixed list of graph templates. It is a knowledge package about Geometry Nodes reasoning: node roles, sockets, field/data-flow relationships, verified patterns, readback repair, and teachable frame organization.
 

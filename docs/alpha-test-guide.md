@@ -76,7 +76,7 @@ What to inspect:
 
 ## Optional External Agent Comparison
 
-Install the standalone skill package, then ask Codex, Claude, or another external agent to solve Test 1 through the community blender-mcp project.
+Install the standalone skill package, then ask Codex, Claude, or another external agent to solve Test 1 through a Blender MCP server (official Blender Lab MCP or community blender-mcp).
 
 ```bash
 git clone https://github.com/monswag/nodecue-blender-node-skills.git

@@ -6,7 +6,7 @@ NodeCue should be public only when a new user can install it, run one Geometry N
 
 - Blender 5.0+ Geometry Nodes only (developed and tested on 5.1).
 - Built-in agent through OpenRouter or another OpenAI-compatible endpoint.
-- External agent workflow through the standalone `nodecue-blender-node-skills` package and the community blender-mcp project.
+- External agent workflow through the standalone `nodecue-blender-node-skills` package and a Blender MCP server (official Blender Lab MCP or community blender-mcp).
 - Local reports and saved `.blend` artifacts for debugging.
 - No Shader Nodes, Compositing Nodes, OAuth login, hosted service, or paid feature gate in the first public alpha.
 
