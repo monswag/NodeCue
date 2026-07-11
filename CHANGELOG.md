@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Preferences reorganized around what a first-time user needs: Provider, Model, API Key, and dependency install; sidecar paths, model tuning, artifacts, Env File, and the bridge port moved into a collapsed Advanced section. The Mock provider is gone from the UI.
+- New `API Key` field (password-style). Priority when a key exists in several places: OS environment, then the API Key field, then the Env File. The key reaches the sidecar only via environment variables — never on the command line, never in reports.
+- The local bridge no longer has Start/Stop buttons; it starts automatically with agent runs. It remains the internal transport between the sidecar and Blender.
+- New `Mark Result as Asset` button: marks the active object's Geometry Nodes group as an asset so generated setups can be saved into your asset library and reused by later prompts.
+- Side panel slimmed to mode, prompt, run controls, and results; provider/model configuration lives only in preferences.
+
 - One-click `Install Agent Dependencies` in the panel and add-on preferences: sidecar packages install into a NodeCue-managed `nodecue-deps` folder using the sidecar Python (Blender's own Python by default). No manual virtualenv needed.
 - Sidecar runtime requirements now ship inside the add-on package (`nodecue/requirements-agent.txt`) and no longer include test-only packages.
 - Repo-root `requirements-agent.txt` renamed to `requirements-dev.txt` (CI/test dependencies).

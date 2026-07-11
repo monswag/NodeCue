@@ -40,7 +40,7 @@ Fix:
 
 If you installed an earlier NodeCue build, Blender may keep the old saved preference. Manually set `Sidecar Root` to the installed `nodecue` folder after installing the new zip.
 
-## Env File Is Missing
+## API Key Is Missing
 
 Symptom:
 
@@ -50,16 +50,10 @@ Missing API key
 
 Fix:
 
-1. Create a text file named `nodecue.env` anywhere convenient.
-2. Add your provider key:
+1. Paste your provider key into the `API Key` field in NodeCue Add-on Preferences.
+2. Run Check Setup again; it should report `api key: set (from preferences)`.
 
-```bash
-OPENROUTER_API_KEY=...
-NODECUE_AGENT_PROVIDER=openrouter
-NODECUE_AGENT_MODEL=moonshotai/kimi-k2.6
-```
-
-3. Confirm `Env File` in Blender points to that file.
+File-based alternative: open `Advanced`, point `Env File` at a `nodecue.env` file containing `OPENROUTER_API_KEY=...`. When both exist, the OS environment wins over the `API Key` field, which wins over the `Env File`.
 
 Do not paste API keys into GitHub issues.
 

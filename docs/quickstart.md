@@ -64,26 +64,20 @@ On Windows, the Python path is usually:
 
 ## 3. Configure Model Access
 
-Create a text file named `nodecue.env` anywhere convenient, then paste your provider settings into it:
+In NodeCue Add-on Preferences:
 
-```text
-OPENROUTER_API_KEY=...
-NODECUE_AGENT_PROVIDER=openrouter
-NODECUE_AGENT_MODEL=moonshotai/kimi-k2.6
-NODECUE_AGENT_REASONING_EFFORT=none
-NODECUE_AGENT_MAX_TOKENS=4096
-```
+1. Pick a `Provider` (OpenRouter by default).
+2. Set `Model`, for example `moonshotai/kimi-k2.6`.
+3. Paste your provider key into `API Key`.
 
-There is also a sample file at `nodecue/nodecue.env.example` inside the installed add-on folder.
+The key is stored in Blender's preferences file in plain text and is passed to the sidecar only through environment variables. If you prefer file-based secrets, open `Advanced` and point `Env File` at a `nodecue.env` file instead (sample at `nodecue/nodecue.env.example`). When a key is available from several places, the priority is: OS environment, then the `API Key` field, then the `Env File`.
 
-## 4. Configure in Blender
+## 4. Run Check Setup
 
-1. Open Add-on Preferences for NodeCue.
-2. Set `Env File` to your `nodecue.env` file.
-3. Leave `Sidecar Python` at its default (Blender's own Python) unless you created a manual environment in step 2.
-4. Confirm `Sidecar Root` points to the installed `nodecue` add-on folder.
-5. Open the NodeCue panel in the 3D View sidebar.
-6. Run Check Setup.
+1. Open the NodeCue panel in the 3D View sidebar.
+2. Run Check Setup and confirm it reports `status: OK`.
+
+Sidecar Python/root, model tuning, artifact paths, and the local bridge port live under `Advanced` in the preferences and rarely need changes.
 
 ## 5. Try a Prompt
 

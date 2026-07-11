@@ -11,6 +11,7 @@ from datetime import datetime
 import bpy
 
 from nodecue import deps as agent_deps
+from nodecue.agent_env import compose_sidecar_env, load_env_values, resolved_api_key
 
 
 DEFAULT_SKILL_PATH = str(Path(__file__).resolve().parent / "skills" / "geometry-nodes")
@@ -76,20 +77,7 @@ def _default_artifact_root() -> str:
     return str(Path(tempfile.gettempdir()) / "nodecue_plugin_agent")
 
 
-def _load_env_values(path: str) -> dict[str, str]:
-    env_path = Path(path).expanduser()
-    if not path or not env_path.exists():
-        return {}
-    values: dict[str, str] = {}
-    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        if key:
-            values[key] = value.strip().strip('"').strip("'")
-    return values
+_load_env_values = load_env_values
 
 
 def _resolved_api_key_env(provider: str, explicit: str) -> str:
@@ -120,7 +108,6 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
     agent_provider: bpy.props.EnumProperty(
         name="Provider",
         items=(
-            ("mock", "Mock", "Run the local sidecar prototype without a model call"),
             ("openai", "OpenAI", "Use OpenAI through the Agents SDK"),
             ("anthropic", "Anthropic", "Use Anthropic's API"),
             (
@@ -147,10 +134,25 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
         default="",
         description="Optional OpenAI-compatible API base URL",
     )
+    agent_api_key: bpy.props.StringProperty(
+        name="API Key",
+        default="",
+        subtype="PASSWORD",
+        description=(
+            "Provider API key. Stored in Blender's preferences file in plain text; "
+            "prefer the Env File option in Advanced if you manage secrets in files. "
+            "Ignored when the key is already set in the OS environment"
+        ),
+    )
     agent_api_key_env: bpy.props.StringProperty(
         name="API Key Env",
         default="",
         description="Environment variable that contains the provider API key",
+    )
+    show_advanced: bpy.props.BoolProperty(
+        name="Advanced",
+        default=False,
+        description="Show sidecar, model tuning, artifact, and bridge settings",
     )
     agent_python: bpy.props.StringProperty(
         name="Sidecar Python",
@@ -237,58 +239,65 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
     def draw(self, context):
         layout = self.layout
 
-        # NodeCue Agent section.
-        layout.label(text="NodeCue Agent")
+        # Basic: provider, model, key, dependencies. Everything else is Advanced.
         layout.prop(self, "agent_provider")
         layout.prop(self, "agent_model")
         if self.agent_provider in {"openai-compatible", "anthropic-compatible"}:
             layout.prop(self, "agent_base_url")
-        if self.agent_provider != "mock":
-            layout.prop(self, "agent_api_key_env")
-        layout.prop(self, "agent_python")
+        layout.prop(self, "agent_api_key")
+
         dep_dir = _deps_dir()
-        row = layout.row(align=True)
-        row.operator("gn_ai.install_agent_deps", icon="IMPORT")
         if agent_deps.deps_installed(dep_dir):
-            layout.label(text=f"Sidecar dependencies installed: {dep_dir}", icon="CHECKMARK")
+            layout.label(text="Sidecar dependencies installed", icon="CHECKMARK")
         else:
+            row = layout.row(align=True)
+            row.operator("gn_ai.install_agent_deps", icon="IMPORT")
             layout.label(
-                text="Sidecar dependencies not installed - press Install Agent Dependencies",
+                text="Dependencies not installed yet - press Install Agent Dependencies",
                 icon="ERROR",
             )
-        layout.prop(self, "agent_sidecar_root")
-        layout.prop(self, "agent_env_file")
-        layout.prop(self, "agent_timeout_seconds")
-        layout.prop(self, "agent_reasoning_effort")
-        layout.prop(self, "agent_max_tokens")
-        layout.prop(self, "agent_max_turns")
-        layout.prop(self, "agent_artifact_root")
-        layout.prop(self, "agent_save_blend_copy")
-        layout.label(text="Account-login providers are experimental and not enabled.", icon="INFO")
-        layout.prop(self, "skill_path")
 
-        # Local Blender Bridge section.
-        layout.separator()
-        layout.label(text="Local Blender Bridge")
-        layout.prop(self, "mcp_socket_port")
-        row = layout.row(align=True)
-        row.operator("gn_ai.start_socket_server", text="Start Bridge")
-        row.operator("gn_ai.stop_socket_server", text="Stop Bridge")
-        from nodecue.socket_server import get_server
-        srv = get_server()
-        if srv and srv.is_running:
-            layout.label(text=f"Bridge running on port {srv.port}", icon="CHECKMARK")
-        else:
-            layout.label(text="Bridge stopped", icon="X")
-
-        # Asset Library Access section.
+        # Asset Library Access: consent switches stay visible.
         layout.separator()
         layout.label(text="Asset Library Access")
-        layout.prop(self, "asset_access_essentials")
-        layout.prop(self, "asset_access_user")
+        layout.prop(self, "asset_access_essentials", text="Let AI reuse Blender built-in node group assets")
+        layout.prop(self, "asset_access_user", text="Let AI reuse node groups from my asset libraries")
         if self.asset_access_essentials or self.asset_access_user:
             row = layout.row()
             row.operator("gn_ai.scan_asset_libraries", text="Scan Libraries", icon="ASSET_MANAGER")
+
+        # Advanced: collapsed by default.
+        layout.separator()
+        layout.prop(self, "show_advanced", toggle=True, icon="PREFERENCES")
+        if self.show_advanced:
+            box = layout.box()
+            box.label(text="Model Tuning")
+            box.prop(self, "agent_reasoning_effort")
+            box.prop(self, "agent_timeout_seconds")
+            box.prop(self, "agent_max_tokens")
+            box.prop(self, "agent_max_turns")
+
+            box.separator()
+            box.label(text="Key / Env File (override the API Key field)")
+            box.prop(self, "agent_api_key_env")
+            box.prop(self, "agent_env_file")
+
+            box.separator()
+            box.label(text="Sidecar")
+            box.prop(self, "agent_python")
+            row = box.row(align=True)
+            row.operator("gn_ai.install_agent_deps", icon="IMPORT")
+            box.prop(self, "agent_sidecar_root")
+            box.prop(self, "skill_path")
+
+            box.separator()
+            box.label(text="Artifacts")
+            box.prop(self, "agent_artifact_root")
+            box.prop(self, "agent_save_blend_copy")
+
+            box.separator()
+            box.label(text="Local Bridge (managed automatically)")
+            box.prop(self, "mcp_socket_port")
 
 
 class GN_AI_Properties(bpy.types.PropertyGroup):
@@ -450,26 +459,33 @@ def _summarize_agent_report(report: dict) -> str:
 
 def _agent_setup_report(prefs) -> tuple[bool, str]:
     errors = _validate_agent_configuration(prefs)
-    env_values = _load_env_values(prefs.agent_env_file.strip())
+    file_values = _load_env_values(prefs.agent_env_file.strip())
+    env_values = dict(os.environ)
+    env_values.update({key: value for key, value in file_values.items() if key not in env_values})
     model = prefs.agent_model.strip() or env_values.get("NODECUE_AGENT_MODEL", "").strip()
     api_key_env = _resolved_api_key_env(
         prefs.agent_provider,
         prefs.agent_api_key_env.strip() or env_values.get("NODECUE_AGENT_API_KEY_ENV", "").strip(),
     )
-    from nodecue.socket_server import get_server
-
-    srv = get_server()
+    api_key, api_key_source = resolved_api_key(
+        dict(os.environ),
+        file_values,
+        api_key_env=api_key_env,
+        prefs_api_key=prefs.agent_api_key,
+    )
+    if not _provider_requires_api_key(prefs.agent_provider) and not api_key:
+        key_line = "api key: (not required)"
+    elif api_key:
+        key_line = f"api key: set (from {api_key_source})"
+    else:
+        key_line = "api key: missing"
     lines = [
         "NodeCue setup check",
         f"provider: {prefs.agent_provider}",
         f"model: {model or '(missing)'}",
-        f"sidecar python: {prefs.agent_python or _default_agent_python()}",
-        f"sidecar root: {prefs.agent_sidecar_root or _default_sidecar_root()}",
-        f"env file: {prefs.agent_env_file or '(none)'}",
-        f"api key env: {api_key_env or '(not required)'}",
-        f"deps dir: {_deps_dir()} ({'installed' if agent_deps.deps_installed(_deps_dir()) else 'not installed'})",
+        key_line,
+        f"deps: {'installed' if agent_deps.deps_installed(_deps_dir()) else 'not installed'}",
         f"skill path: {prefs.skill_path}",
-        f"bridge: {'running on ' + str(srv.port) if srv and srv.is_running else 'stopped'}",
     ]
     if errors:
         lines.append("errors:")
@@ -484,11 +500,10 @@ def _validate_agent_configuration(prefs) -> list[str]:
     python_path = Path((prefs.agent_python or _default_agent_python()).strip()).expanduser()
     sidecar_root = Path((prefs.agent_sidecar_root or _default_sidecar_root()).strip()).expanduser()
     skill_path = Path((prefs.skill_path or DEFAULT_SKILL_PATH).strip()).expanduser()
+    file_values = _load_env_values(prefs.agent_env_file.strip())
     env_values = dict(os.environ)
-    env_values.update(_load_env_values(prefs.agent_env_file.strip()))
+    env_values.update({key: value for key, value in file_values.items() if key not in env_values})
 
-    if prefs.agent_provider == "mock":
-        errors.append("Mock provider is not supported by the SDK-backed plugin runner.")
     if prefs.agent_provider not in {
         "openrouter",
         "openai",
@@ -509,19 +524,32 @@ def _validate_agent_configuration(prefs) -> list[str]:
         errors.append(f"Geometry Nodes skill not found: {skill_path}")
 
     model = prefs.agent_model.strip() or env_values.get("NODECUE_AGENT_MODEL", "").strip()
-    if prefs.agent_provider != "mock" and not model:
-        errors.append("Missing model. Set Model in the addon or NODECUE_AGENT_MODEL in .env.")
+    if not model:
+        errors.append("Missing model. Set Model in the addon preferences.")
 
     api_key_env = _resolved_api_key_env(
         prefs.agent_provider,
         prefs.agent_api_key_env.strip() or env_values.get("NODECUE_AGENT_API_KEY_ENV", "").strip(),
     )
-    if _provider_requires_api_key(prefs.agent_provider) and not env_values.get(api_key_env, "").strip():
-        errors.append(f"Missing API key env var: {api_key_env}")
+    api_key, _ = resolved_api_key(
+        dict(os.environ),
+        file_values,
+        api_key_env=api_key_env,
+        prefs_api_key=prefs.agent_api_key,
+    )
+    if _provider_requires_api_key(prefs.agent_provider) and not api_key:
+        errors.append(
+            f"Missing API key. Paste it into the API Key field, or provide {api_key_env} "
+            "via the environment or an Env File."
+        )
 
-    if not errors and prefs.agent_provider != "mock":
-        env = dict(os.environ)
-        env.update({key: value for key, value in env_values.items() if key not in env})
+    if not errors:
+        env = compose_sidecar_env(
+            dict(os.environ),
+            file_values,
+            api_key_env=api_key_env,
+            prefs_api_key=prefs.agent_api_key,
+        )
         env["PYTHONPATH"] = _sidecar_pythonpath(sidecar_root) + os.pathsep + env.get("PYTHONPATH", "")
         try:
             proc = subprocess.run(
@@ -816,9 +844,16 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
         if prefs.agent_env_file:
             cmd.extend(["--env-file", prefs.agent_env_file])
 
-        env = dict(os.environ)
-        for key, value in env_values.items():
-            env.setdefault(key, value)
+        resolved_key_env = _resolved_api_key_env(
+            prefs.agent_provider,
+            api_key_env or env_values.get("NODECUE_AGENT_API_KEY_ENV", "").strip(),
+        )
+        env = compose_sidecar_env(
+            dict(os.environ),
+            env_values,
+            api_key_env=resolved_key_env,
+            prefs_api_key=prefs.agent_api_key,
+        )
         sidecar_root = prefs.agent_sidecar_root.strip() or _default_sidecar_root()
         env["NODECUE_AGENT_PROVIDER"] = prefs.agent_provider
         env["NODECUE_AGENT_REASONING_EFFORT"] = prefs.agent_reasoning_effort
@@ -896,6 +931,46 @@ class GN_AI_OT_CancelAgentRun(bpy.types.Operator):
         return {"FINISHED"}
 
 
+def _active_gn_node_group(context):
+    obj = getattr(context, "active_object", None)
+    if obj is None:
+        return None
+    for mod in getattr(obj, "modifiers", []):
+        if getattr(mod, "type", "") == "NODES" and getattr(mod, "node_group", None) is not None:
+            return mod.node_group
+    return None
+
+
+class GN_AI_OT_MarkResultAsset(bpy.types.Operator):
+    bl_idname = "gn_ai.mark_result_asset"
+    bl_label = "Mark Result as Asset"
+    bl_description = (
+        "Mark the active object's Geometry Nodes group as an asset so it can be "
+        "saved into your asset library and reused by NodeCue in later prompts"
+    )
+
+    def execute(self, context):
+        node_group = _active_gn_node_group(context)
+        if node_group is None:
+            self.report({"ERROR"}, "Active object has no Geometry Nodes modifier with a node group")
+            return {"CANCELLED"}
+        try:
+            node_group.asset_mark()
+            try:
+                node_group.asset_generate_preview()
+            except Exception:
+                pass
+        except Exception as exc:
+            self.report({"ERROR"}, f"Could not mark asset: {exc}")
+            return {"CANCELLED"}
+        self.report(
+            {"INFO"},
+            f"Marked '{node_group.name}' as an asset. Save this file into an asset "
+            "library folder to reuse it in later prompts.",
+        )
+        return {"FINISHED"}
+
+
 class GN_AI_PT_MainPanel(bpy.types.Panel):
     bl_label = "NodeCue"
     bl_idname = "GN_AI_PT_main"
@@ -906,28 +981,7 @@ class GN_AI_PT_MainPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         props = context.scene.gn_ai_props
-        prefs = context.preferences.addons[__package__].preferences
-        from nodecue.socket_server import get_server
 
-        layout.label(text="NodeCue Agent")
-        layout.prop(prefs, "agent_provider")
-        layout.prop(prefs, "agent_model")
-        if prefs.agent_provider in {"openai-compatible", "anthropic-compatible"}:
-            layout.prop(prefs, "agent_base_url")
-        if prefs.agent_provider != "mock":
-            layout.prop(prefs, "agent_api_key_env")
-        layout.prop(prefs, "agent_reasoning_effort")
-        layout.label(text="Subscription account login is experimental/high risk.", icon="INFO")
-        layout.prop(prefs, "skill_path")
-
-        layout.separator()
-        layout.label(text="Asset Library Access")
-        layout.prop(prefs, "asset_access_essentials")
-        layout.prop(prefs, "asset_access_user")
-        if prefs.asset_access_essentials or prefs.asset_access_user:
-            layout.operator("gn_ai.scan_asset_libraries", icon="ASSET_MANAGER")
-
-        layout.separator()
         layout.prop(props, "mode")
         layout.prop(props, "prompt")
         if not agent_deps.deps_installed(_deps_dir()):
@@ -947,18 +1001,8 @@ class GN_AI_PT_MainPanel(bpy.types.Panel):
             layout.label(text=f"Report: {props.agent_report_path}", icon="FILE_TEXT")
         if props.agent_blend_path:
             layout.label(text=f"Blend: {props.agent_blend_path}", icon="FILE_BLEND")
-
-        layout.separator()
-        layout.label(text="Local Blender Bridge")
-        layout.prop(prefs, "mcp_socket_port")
-        row = layout.row(align=True)
-        row.operator("gn_ai.start_socket_server", text="Start Bridge", icon="PLAY")
-        row.operator("gn_ai.stop_socket_server", text="Stop Bridge", icon="PAUSE")
-        srv = get_server()
-        if srv and srv.is_running:
-            layout.label(text=f"Running on {srv.port}", icon="CHECKMARK")
-        else:
-            layout.label(text="Stopped", icon="ERROR")
+        if _active_gn_node_group(context) is not None:
+            layout.operator("gn_ai.mark_result_asset", icon="ASSET_MANAGER")
         if props.status:
             layout.label(text=props.status, icon="INFO")
 
@@ -973,6 +1017,7 @@ CLASSES = (
     GN_AI_OT_RunAgentPrototype,
     GN_AI_OT_CheckAgentSetup,
     GN_AI_OT_CancelAgentRun,
+    GN_AI_OT_MarkResultAsset,
     GN_AI_PT_MainPanel,
 )
 

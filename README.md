@@ -16,14 +16,7 @@ The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-n
 1. Download the NodeCue release zip, for example `nodecue-v0.1.0-alpha.14-blender-addon.zip`.
 2. In Blender 5.0 or newer, open `Edit > Preferences > Add-ons > Install...`, select the zip, then enable `NodeCue`.
 3. In the NodeCue panel or add-on preferences, press `Install Agent Dependencies` and wait for `Sidecar dependencies installed` (downloads packages once; no terminal or virtualenv needed).
-4. Create a small provider env file anywhere on your machine and point NodeCue preferences to it:
-
-```text
-OPENROUTER_API_KEY=...
-NODECUE_AGENT_PROVIDER=openrouter
-NODECUE_AGENT_MODEL=moonshotai/kimi-k2.6
-```
-
+4. In NodeCue preferences, pick a provider, set a model (for example `moonshotai/kimi-k2.6`), and paste your API key.
 5. Run Check Setup in the NodeCue panel.
 6. Use the NodeCue panel to run Generate, Explain, or Modify.
 
