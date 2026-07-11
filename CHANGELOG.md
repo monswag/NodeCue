@@ -7,6 +7,9 @@
 - The local bridge no longer has Start/Stop buttons; it starts automatically with agent runs. It remains the internal transport between the sidecar and Blender.
 - New `Mark Result as Asset` button: marks the active object's Geometry Nodes group as an asset so generated setups can be saved into your asset library and reused by later prompts.
 - Side panel slimmed to mode, prompt, run controls, and results; provider/model configuration lives only in preferences.
+- Recommended-models dropdown for OpenRouter (eval-verified models) with a Custom option for any model id.
+- Advanced section slimmed further: API Key Env, Env File, Sidecar Root, and Skill Path removed from the UI (still honored when previously configured; developers can use NODECUE_* environment variables). Sidecar Python stays as the fallback for machines where Blender's own Python cannot install dependencies.
+- Artifacts renamed to Run Records with an explanation (report JSON + logs per run, attach to bug reports) and a stable default location under Blender's user scripts directory instead of the OS temp folder.
 
 - One-click `Install Agent Dependencies` in the panel and add-on preferences: sidecar packages install into a NodeCue-managed `nodecue-deps` folder using the sidecar Python (Blender's own Python by default). No manual virtualenv needed.
 - Sidecar runtime requirements now ship inside the add-on package (`nodecue/requirements-agent.txt`) and no longer include test-only packages.

@@ -74,7 +74,16 @@ def _default_artifact_root() -> str:
     root = Path(_default_sidecar_root())
     if (root / "tests").exists():
         return str(root / "tests" / "integration" / "debug_blends" / "nodecue_plugin_runs")
+    scripts_dir = _user_scripts_dir()
+    if scripts_dir:
+        # Stable, user-findable location; temp dirs get cleaned by the OS.
+        return str(Path(scripts_dir) / "nodecue-runs")
     return str(Path(tempfile.gettempdir()) / "nodecue_plugin_agent")
+
+
+def _apply_model_preset(self, context):
+    if self.agent_model_preset != "custom":
+        self.agent_model = self.agent_model_preset
 
 
 _load_env_values = load_env_values
@@ -124,10 +133,32 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
         ),
         default="openrouter",
     )
+    agent_model_preset: bpy.props.EnumProperty(
+        name="Recommended",
+        description=(
+            "Models verified with NodeCue's Geometry Nodes evals; "
+            "picking one fills the Model field, or choose Custom and type any model id"
+        ),
+        items=(
+            ("custom", "Custom (type below)", "Type any provider model id in the Model field"),
+            (
+                "moonshotai/kimi-k2.6",
+                "Kimi K2.6",
+                "Verified with NodeCue Geometry Nodes evals",
+            ),
+            (
+                "deepseek/deepseek-v4-pro",
+                "DeepSeek V4 Pro",
+                "Verified with NodeCue Geometry Nodes evals",
+            ),
+        ),
+        default="custom",
+        update=_apply_model_preset,
+    )
     agent_model: bpy.props.StringProperty(
         name="Model",
         default="",
-        description="Model name for the selected provider",
+        description="Model id for the selected provider",
     )
     agent_base_url: bpy.props.StringProperty(
         name="Base URL",
@@ -202,10 +233,13 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
         max=80,
     )
     agent_artifact_root: bpy.props.StringProperty(
-        name="Artifact Root",
+        name="Run Records Folder",
         default=_default_artifact_root(),
         subtype="DIR_PATH",
-        description="Directory where plugin agent reports and test .blend copies are saved",
+        description=(
+            "Each run writes a report JSON and log here (plus an optional .blend copy). "
+            "These records are what you attach when reporting a problem"
+        ),
     )
     agent_save_blend_copy: bpy.props.BoolProperty(
         name="Save .blend Copy",
@@ -241,6 +275,8 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
 
         # Basic: provider, model, key, dependencies. Everything else is Advanced.
         layout.prop(self, "agent_provider")
+        if self.agent_provider == "openrouter":
+            layout.prop(self, "agent_model_preset")
         layout.prop(self, "agent_model")
         if self.agent_provider in {"openai-compatible", "anthropic-compatible"}:
             layout.prop(self, "agent_base_url")
@@ -278,20 +314,13 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
             box.prop(self, "agent_max_turns")
 
             box.separator()
-            box.label(text="Key / Env File (override the API Key field)")
-            box.prop(self, "agent_api_key_env")
-            box.prop(self, "agent_env_file")
-
-            box.separator()
-            box.label(text="Sidecar")
+            box.label(text="Sidecar Python (change only if dependencies fail on Blender's own Python)")
             box.prop(self, "agent_python")
             row = box.row(align=True)
             row.operator("gn_ai.install_agent_deps", icon="IMPORT")
-            box.prop(self, "agent_sidecar_root")
-            box.prop(self, "skill_path")
 
             box.separator()
-            box.label(text="Artifacts")
+            box.label(text="Run Records (report JSON + logs per run; attach these to bug reports)")
             box.prop(self, "agent_artifact_root")
             box.prop(self, "agent_save_blend_copy")
 

@@ -67,7 +67,7 @@ On Windows, the Python path is usually:
 In NodeCue Add-on Preferences:
 
 1. Pick a `Provider` (OpenRouter by default).
-2. Set `Model`, for example `moonshotai/kimi-k2.6`.
+2. Pick a model from `Recommended` (verified with NodeCue's evals) or choose Custom and type any model id into `Model`.
 3. Paste your provider key into `API Key`.
 
 The key is stored in Blender's preferences file in plain text and is passed to the sidecar only through environment variables. OS-keychain storage is planned. Advanced users can instead supply the key through the OS environment or an `Env File`; those take priority in that order.
