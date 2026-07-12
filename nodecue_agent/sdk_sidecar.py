@@ -76,7 +76,9 @@ async def _run(args: argparse.Namespace) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prompt", required=True)
-    parser.add_argument("--mode", choices=("generate", "explain", "modify"), default="generate")
+    parser.add_argument(
+        "--mode", choices=("generate", "explain", "modify", "build"), default="build"
+    )
     parser.add_argument("--skill-path", required=True)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=9877)

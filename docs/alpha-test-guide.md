@@ -16,7 +16,7 @@ Do not share API keys, private asset-library paths, or unreleasable `.blend` fil
 
 ## Test 1: Generate Terrain Displacement
 
-Mode: `Generate`
+Button: `Build`
 
 Prompt:
 
@@ -33,7 +33,7 @@ What to inspect:
 
 ## Test 2: Explain an Existing Node Group
 
-Mode: `Explain`
+Button: `Explain` (read-only)
 
 Setup:
 
@@ -55,7 +55,7 @@ What to inspect:
 
 ## Test 3: Modify With Exposed Controls
 
-Mode: `Modify`
+Button: `Build` (the modify intent comes from the prompt)
 
 Setup:
 

@@ -7,7 +7,7 @@ Use these drafts after the repository is public and the current draft release is
 ```text
 NodeCue is an early Blender 5.0+ add-on for learning, building, modifying, and explaining Geometry Nodes with a focused local agent.
 
-The first alpha is intentionally narrow: Geometry Nodes only, OpenRouter/OpenAI-compatible model setup, Generate/Explain/Modify modes, local report JSON, and optional saved .blend artifacts for debugging.
+The first alpha is intentionally narrow: Geometry Nodes only, OpenRouter/OpenAI-compatible model setup, Build and read-only Explain actions, local report JSON, and optional saved .blend artifacts for debugging.
 
 The add-on installs through Blender's normal Add-ons installer, and its Python dependencies install with one click from the add-on itself. The goal is to learn where real Blender users get stuck: setup, model choice, graph quality, explanation quality, or node execution.
 ```
@@ -21,7 +21,7 @@ The idea is not to replace full agents like Claude or Codex. NodeCue is narrower
 
 Current alpha scope:
 - Blender 5.0+ Geometry Nodes only
-- Generate, Explain, and Modify modes
+- Build (create or modify, decided from the prompt) and read-only Explain
 - OpenRouter or another OpenAI-compatible model endpoint
 - local report JSON and optional saved .blend artifacts
 - a standalone Geometry Nodes skill that external agents can also use with Blender's official MCP or the community blender-mcp

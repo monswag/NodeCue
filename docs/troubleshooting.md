@@ -97,7 +97,7 @@ Create a teachable Geometry Nodes setup that displaces a grid terrain with noise
 Useful report details:
 
 - prompt;
-- mode: Generate, Explain, or Modify;
+- button used: Build or Explain;
 - provider/model;
 - report JSON snippet;
 - screenshot of the node tree;

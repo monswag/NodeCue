@@ -33,7 +33,9 @@ from nodecue.bpy_recipes import (
 )
 
 
-AgentMode = Literal["generate", "explain", "modify"]
+# "build" = agent decides from the prompt and scene whether to create a new
+# tree or modify the active one; "generate"/"modify" remain for explicit callers.
+AgentMode = Literal["generate", "explain", "modify", "build"]
 ProviderKind = Literal[
     "openai",
     "anthropic",

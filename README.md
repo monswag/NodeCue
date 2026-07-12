@@ -18,7 +18,7 @@ The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-n
 3. In the NodeCue panel or add-on preferences, press `Install Agent Dependencies` and wait for `Sidecar dependencies installed` (downloads packages once; no terminal or virtualenv needed).
 4. In NodeCue preferences, pick a provider, set a model (for example `moonshotai/kimi-k2.6`), and paste your API key.
 5. Run Check Setup in the NodeCue panel.
-6. Use the NodeCue panel to run Generate, Explain, or Modify.
+6. In the NodeCue panel, press `Build` with a prompt (the agent decides whether to create or modify), or `Explain` for a read-only walkthrough of the active node group.
 
 Detailed setup is in [docs/quickstart.md](docs/quickstart.md).
 
@@ -42,7 +42,7 @@ See [docs/external-agents.md](docs/external-agents.md).
 
 ## Alpha Feedback
 
-Useful reports include the prompt, Blender version, provider/model, report JSON, and what looked wrong in the node graph. Use the `Alpha feedback` issue template after trying Generate, Explain, Modify, or the external-agent workflow.
+Useful reports include the prompt, Blender version, provider/model, report JSON, and what looked wrong in the node graph. Use the `Alpha feedback` issue template after trying Build, Explain, or the external-agent workflow.
 
 Do not paste API keys or private asset-library paths into public issues.
 

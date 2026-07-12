@@ -317,7 +317,11 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
             box.label(text="Sidecar Python (change only if dependencies fail on Blender's own Python)")
             box.prop(self, "agent_python")
             row = box.row(align=True)
-            row.operator("gn_ai.install_agent_deps", icon="IMPORT")
+            row.operator(
+                "gn_ai.install_agent_deps",
+                text="Reinstall Dependencies (for this Python)",
+                icon="FILE_REFRESH",
+            )
 
             box.separator()
             box.label(text="Run Records (report JSON + logs per run; attach these to bug reports)")
@@ -338,15 +342,6 @@ class GN_AI_Properties(bpy.types.PropertyGroup):
         name="Prompt",
         default="",
         description="Describe the node graph to generate, modify, or explain",
-    )
-    mode: bpy.props.EnumProperty(
-        name="Mode",
-        items=(
-            ("generate", "Generate", "Create a new teachable node graph"),
-            ("explain", "Explain", "Explain the active node group"),
-            ("modify", "Modify", "Modify or complete the active node group"),
-        ),
-        default="generate",
     )
     agent_output: bpy.props.StringProperty(
         name="Agent Output",
@@ -787,7 +782,27 @@ class GN_AI_OT_InstallAgentDeps(bpy.types.Operator):
 class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
     bl_idname = "gn_ai.run_agent_prototype"
     bl_label = "Run NodeCue Agent"
-    bl_description = "Run the NodeCue SDK sidecar against the active Blender session"
+    bl_description = (
+        "Build creates or modifies the node graph from your prompt (the agent decides "
+        "which); Explain describes the active node group without changing it"
+    )
+
+    agent_mode: bpy.props.EnumProperty(
+        name="Mode",
+        items=(
+            (
+                "build",
+                "Build",
+                "Create or modify a node graph from the prompt; the agent decides which",
+            ),
+            (
+                "explain",
+                "Explain",
+                "Explain the active node group without changing it (read-only)",
+            ),
+        ),
+        default="build",
+    )
 
     def execute(self, context):
         global _AGENT_PROCESS, _AGENT_REPORT_PATH, _AGENT_STDERR_PATH, _AGENT_ARTIFACT_DIR, _AGENT_CANCEL_REQUESTED
@@ -822,7 +837,7 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
         model = prefs.agent_model.strip() or env_values.get("NODECUE_AGENT_MODEL", "").strip()
         artifact_root = Path((prefs.agent_artifact_root or _default_artifact_root()).strip()).expanduser()
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        artifact_dir = artifact_root / f"{stamp}_{props.mode}_{_sanitize_artifact_part(model)}"
+        artifact_dir = artifact_root / f"{stamp}_{self.agent_mode}_{_sanitize_artifact_part(model)}"
         artifact_dir.mkdir(parents=True, exist_ok=True)
         _AGENT_ARTIFACT_DIR = artifact_dir
         _AGENT_REPORT_PATH = artifact_dir / "report.json"
@@ -844,7 +859,7 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
             "--prompt",
             props.prompt,
             "--mode",
-            props.mode,
+            self.agent_mode,
             "--skill-path",
             prefs.skill_path,
             "--host",
@@ -1011,15 +1026,17 @@ class GN_AI_PT_MainPanel(bpy.types.Panel):
         layout = self.layout
         props = context.scene.gn_ai_props
 
-        layout.prop(props, "mode")
         layout.prop(props, "prompt")
         if not agent_deps.deps_installed(_deps_dir()):
             layout.operator("gn_ai.install_agent_deps", icon="IMPORT")
         row = layout.row(align=True)
         row.operator("gn_ai.check_agent_setup", icon="CHECKMARK")
         row = layout.row(align=True)
-        row.operator("gn_ai.run_agent_prototype", icon="PLAY")
-        row.operator("gn_ai.cancel_agent_run", icon="CANCEL")
+        build_op = row.operator("gn_ai.run_agent_prototype", text="Build", icon="PLAY")
+        build_op.agent_mode = "build"
+        explain_op = row.operator("gn_ai.run_agent_prototype", text="Explain", icon="QUESTION")
+        explain_op.agent_mode = "explain"
+        layout.operator("gn_ai.cancel_agent_run", icon="CANCEL")
 
         if props.agent_output:
             box = layout.box()

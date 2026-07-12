@@ -10,6 +10,8 @@
 - Recommended-models dropdown for OpenRouter (eval-verified models) with a Custom option for any model id.
 - Advanced section slimmed further: API Key Env, Env File, Sidecar Root, and Skill Path removed from the UI (still honored when previously configured; developers can use NODECUE_* environment variables). Sidecar Python stays as the fallback for machines where Blender's own Python cannot install dependencies.
 - Artifacts renamed to Run Records with an explanation (report JSON + logs per run, attach to bug reports) and a stable default location under Blender's user scripts directory instead of the OS temp folder.
+- The Generate/Explain/Modify mode dropdown is gone. The panel now has two actions: `Build` (the agent decides from the prompt and scene whether to create a new tree or modify the active one) and `Explain` (strictly read-only). The sidecar keeps accepting explicit generate/modify modes for automated callers.
+- Dependency reinstall for a custom Sidecar Python is now a clearly labeled `Reinstall Dependencies` button in Advanced.
 
 - One-click `Install Agent Dependencies` in the panel and add-on preferences: sidecar packages install into a NodeCue-managed `nodecue-deps` folder using the sidecar Python (Blender's own Python by default). No manual virtualenv needed.
 - Sidecar runtime requirements now ship inside the add-on package (`nodecue/requirements-agent.txt`) and no longer include test-only packages.

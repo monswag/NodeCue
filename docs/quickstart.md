@@ -81,7 +81,7 @@ Sidecar Python/root, model tuning, artifact paths, and the local bridge port liv
 
 ## 5. Try a Prompt
 
-Choose Generate and try:
+Press `Build` and try:
 
 ```text
 Create a teachable Geometry Nodes setup that displaces a grid terrain with noise, exposes height and scale controls, and frames the graph so a beginner can understand it.
