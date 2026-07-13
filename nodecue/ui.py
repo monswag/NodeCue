@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime
 
 import bpy
@@ -67,6 +68,7 @@ _AGENT_STDERR_PATH: Path | None = None
 _AGENT_ARTIFACT_DIR: Path | None = None
 _AGENT_CANCEL_REQUESTED = False
 _AGENT_LAST_MODE = ""
+_AGENT_STARTED = 0.0
 _DEPS_PROCESS: subprocess.Popen | None = None
 _DEPS_LOG_PATH: Path | None = None
 _SETUP_STATUS: list[str] = []
@@ -455,54 +457,27 @@ class GN_AI_OT_ScanAssetLibraries(bpy.types.Operator):
 
 
 def _summarize_agent_report(report: dict) -> str:
-    lines = [
-        f"stage: {report.get('stage', '')}",
-        f"provider: {report.get('provider', {}).get('kind', '')} / {report.get('provider', {}).get('model', '')}",
-    ]
+    """Keep the panel output to what a user acts on: errors, a one-line
+    graph summary, and the teaching explanation."""
+    lines: list[str] = []
     error = str(report.get("error") or "").strip()
     if error:
-        lines.append(f"error: {error[:500]}")
+        lines.append(f"error: {error[:300]}")
     sdk_result = report.get("sdk_result") if isinstance(report.get("sdk_result"), dict) else {}
-    actions = sdk_result.get("action_results") if isinstance(sdk_result, dict) else []
-    if isinstance(actions, list):
-        raw_actions = [
-            action for action in actions
-            if isinstance(action, dict) and isinstance(action.get("action"), dict)
-        ]
-        lines.append(f"raw blender actions: {len(raw_actions)}")
-        guidance_count = len(actions) - len(raw_actions)
-        if guidance_count:
-            lines.append(f"blender tool guidance: {guidance_count}")
-    stages = sdk_result.get("stage_results") if isinstance(sdk_result, dict) else []
-    if isinstance(stages, list):
-        lines.append(f"execution stages: {len(stages)}")
-    skill_files = sdk_result.get("skill_files_read") if isinstance(sdk_result, dict) else []
-    if isinstance(skill_files, list):
-        lines.append(f"skill files read: {len(skill_files)}")
     readback = sdk_result.get("readback") if isinstance(sdk_result, dict) else None
     if isinstance(readback, dict):
-        nodes = readback.get("nodes")
-        links = readback.get("links")
-        frames = readback.get("frames")
-        if isinstance(nodes, list):
-            lines.append(f"nodes: {len(nodes)}")
-            names = [
-                f"{node.get('name')} ({node.get('bl_idname')})"
-                for node in nodes
-                if isinstance(node, dict)
-            ]
-            lines.extend(names[:8])
-        if isinstance(links, list):
-            lines.append(f"links: {len(links)}")
-        if isinstance(frames, list):
-            lines.append(f"frames: {len(frames)}")
+        counts = []
+        for key, label in (("nodes", "nodes"), ("links", "links"), ("frames", "frames")):
+            value = readback.get(key)
+            if isinstance(value, list):
+                counts.append(f"{len(value)} {label}")
+        if counts:
+            lines.append(" / ".join(counts))
     final_output = str(report.get("final_output") or "").strip()
     if final_output:
-        lines.append("final:")
-        lines.extend(final_output.splitlines()[:14])
-    blend_path = str(report.get("blend_path") or "").strip()
-    if blend_path:
-        lines.append(f"blend: {blend_path}")
+        lines.extend(final_output.splitlines()[:30])
+    elif not error:
+        lines.append("(no explanation returned - see the report JSON in Run Records)")
     return "\n".join(lines)
 
 
@@ -629,7 +604,18 @@ def _poll_agent_process() -> float | None:
     if _AGENT_PROCESS is None:
         return None
     if _AGENT_PROCESS.poll() is None:
-        status = "NodeCue agent canceling..." if _AGENT_CANCEL_REQUESTED else "NodeCue agent running..."
+        if _AGENT_CANCEL_REQUESTED:
+            status = "NodeCue agent canceling..."
+        else:
+            elapsed = int(time.time() - _AGENT_STARTED) if _AGENT_STARTED else 0
+            ops = 0
+            try:
+                from nodecue.socket_server import get_activity
+
+                ops = int(get_activity().get("ops", 0))
+            except Exception:
+                pass
+            status = f"NodeCue agent running... {ops} node ops, {elapsed}s"
         for props in _each_scene_props():
             props.status = status
         _tag_view3d_redraw()
@@ -815,7 +801,7 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
     )
 
     def execute(self, context):
-        global _AGENT_PROCESS, _AGENT_REPORT_PATH, _AGENT_STDERR_PATH, _AGENT_ARTIFACT_DIR, _AGENT_CANCEL_REQUESTED, _AGENT_LAST_MODE
+        global _AGENT_PROCESS, _AGENT_REPORT_PATH, _AGENT_STDERR_PATH, _AGENT_ARTIFACT_DIR, _AGENT_CANCEL_REQUESTED, _AGENT_LAST_MODE, _AGENT_STARTED
 
         props = context.scene.gn_ai_props
         prefs = context.preferences.addons[__package__].preferences
@@ -837,11 +823,12 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
             self.report({"ERROR"}, errors[0])
             return {"CANCELLED"}
 
-        from nodecue.socket_server import get_server, start_server
+        from nodecue.socket_server import get_server, reset_activity, start_server
 
         srv = get_server()
         if srv is None or not srv.is_running:
             start_server(port=prefs.mcp_socket_port)
+        reset_activity()
 
         env_values = _load_env_values(prefs.agent_env_file.strip())
         model = prefs.agent_model.strip() or env_values.get("NODECUE_AGENT_MODEL", "").strip()
@@ -854,6 +841,7 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
         _AGENT_STDERR_PATH = artifact_dir / "stderr.log"
         _AGENT_CANCEL_REQUESTED = False
         _AGENT_LAST_MODE = self.agent_mode
+        _AGENT_STARTED = time.time()
         if _AGENT_REPORT_PATH.exists():
             _AGENT_REPORT_PATH.unlink()
         if _AGENT_STDERR_PATH.exists():
@@ -1042,12 +1030,15 @@ class GN_AI_PT_MainPanel(bpy.types.Panel):
         layout.prop(props, "prompt")
         if not agent_deps.deps_installed(_deps_dir()):
             layout.operator("gn_ai.install_agent_deps", icon="IMPORT")
+        running = _AGENT_PROCESS is not None and _AGENT_PROCESS.poll() is None
         row = layout.row(align=True)
+        row.enabled = not running
         build_op = row.operator("gn_ai.run_agent_prototype", text="Build", icon="PLAY")
         build_op.agent_mode = "build"
         explain_op = row.operator("gn_ai.run_agent_prototype", text="Explain", icon="QUESTION")
         explain_op.agent_mode = "explain"
-        layout.operator("gn_ai.cancel_agent_run", icon="CANCEL")
+        if running:
+            layout.operator("gn_ai.cancel_agent_run", text="Cancel", icon="CANCEL")
 
         if props.agent_output:
             box = layout.box()

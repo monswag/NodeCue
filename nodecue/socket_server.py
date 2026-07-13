@@ -2046,6 +2046,19 @@ def _cmd_execute_action_batch(params: dict) -> dict:
     )
 
 
+# Live activity counters so the UI can show real progress during agent runs.
+_ACTIVITY: dict[str, Any] = {"ops": 0, "last": ""}
+
+
+def get_activity() -> dict[str, Any]:
+    return dict(_ACTIVITY)
+
+
+def reset_activity() -> None:
+    _ACTIVITY["ops"] = 0
+    _ACTIVITY["last"] = ""
+
+
 _COMMANDS: dict[str, Any] = {
     "ping": _cmd_ping,
     "list_node_groups": _cmd_list_node_groups,
@@ -2164,6 +2177,8 @@ class GNMCPSocketServer:
                     try:
                         cmd_type = m.get("type", "")
                         params = m.get("params", {})
+                        _ACTIVITY["ops"] += 1
+                        _ACTIVITY["last"] = cmd_type
                         handler = _COMMANDS.get(cmd_type)
                         if handler is None:
                             rh.append(
