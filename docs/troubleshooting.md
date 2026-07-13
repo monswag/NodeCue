@@ -51,7 +51,7 @@ Missing API key
 Fix:
 
 1. Paste your provider key into the `API Key` field in NodeCue Add-on Preferences.
-2. Run Check Setup again; it should report `api key: set (from preferences)`.
+2. Run Check Setup again; it should report `Setup OK`.
 
 File-based alternative: open `Advanced`, point `Env File` at a `nodecue.env` file containing `OPENROUTER_API_KEY=...`. When both exist, the OS environment wins over the `API Key` field, which wins over the `Env File`.
 
@@ -83,7 +83,7 @@ Try:
 - run Check Setup again;
 - confirm the bridge is started;
 - open Blender's console or system terminal and look for sidecar errors;
-- check the report JSON path shown in the NodeCue panel;
+- check the newest report JSON in the Run Records folder (Advanced preferences);
 - reduce the prompt to one small Geometry Nodes task.
 
 Useful first prompt:

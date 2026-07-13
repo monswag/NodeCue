@@ -66,8 +66,29 @@ _AGENT_REPORT_PATH: Path | None = None
 _AGENT_STDERR_PATH: Path | None = None
 _AGENT_ARTIFACT_DIR: Path | None = None
 _AGENT_CANCEL_REQUESTED = False
+_AGENT_LAST_MODE = ""
 _DEPS_PROCESS: subprocess.Popen | None = None
 _DEPS_LOG_PATH: Path | None = None
+_SETUP_STATUS: list[str] = []
+
+
+def _each_scene_props():
+    """Timer-safe access to gn_ai_props: bpy.context.scene is often None
+    inside bpy.app.timers callbacks, so go through bpy.data instead."""
+    for scene in bpy.data.scenes:
+        props = getattr(scene, "gn_ai_props", None)
+        if props is not None:
+            yield props
+
+
+def _tag_view3d_redraw() -> None:
+    try:
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas:
+                if area.type == "VIEW_3D":
+                    area.tag_redraw()
+    except Exception:
+        pass
 
 
 def _default_artifact_root() -> str:
@@ -292,6 +313,10 @@ class GN_AI_AddonPreferences(bpy.types.AddonPreferences):
                 text="Dependencies not installed yet - press Install Agent Dependencies",
                 icon="ERROR",
             )
+        row = layout.row(align=True)
+        row.operator("gn_ai.check_agent_setup", icon="CHECKMARK")
+        for line in _SETUP_STATUS[:8]:
+            layout.label(text=line[:120])
 
         # Asset Library Access: consent switches stay visible.
         layout.separator()
@@ -483,40 +508,13 @@ def _summarize_agent_report(report: dict) -> str:
 
 def _agent_setup_report(prefs) -> tuple[bool, str]:
     errors = _validate_agent_configuration(prefs)
+    if errors:
+        return False, "Setup issues:\n" + "\n".join(f"- {error}" for error in errors)
     file_values = _load_env_values(prefs.agent_env_file.strip())
     env_values = dict(os.environ)
     env_values.update({key: value for key, value in file_values.items() if key not in env_values})
     model = prefs.agent_model.strip() or env_values.get("NODECUE_AGENT_MODEL", "").strip()
-    api_key_env = _resolved_api_key_env(
-        prefs.agent_provider,
-        prefs.agent_api_key_env.strip() or env_values.get("NODECUE_AGENT_API_KEY_ENV", "").strip(),
-    )
-    api_key, api_key_source = resolved_api_key(
-        dict(os.environ),
-        file_values,
-        api_key_env=api_key_env,
-        prefs_api_key=prefs.agent_api_key,
-    )
-    if not _provider_requires_api_key(prefs.agent_provider) and not api_key:
-        key_line = "api key: (not required)"
-    elif api_key:
-        key_line = f"api key: set (from {api_key_source})"
-    else:
-        key_line = "api key: missing"
-    lines = [
-        "NodeCue setup check",
-        f"provider: {prefs.agent_provider}",
-        f"model: {model or '(missing)'}",
-        key_line,
-        f"deps: {'installed' if agent_deps.deps_installed(_deps_dir()) else 'not installed'}",
-        f"skill path: {prefs.skill_path}",
-    ]
-    if errors:
-        lines.append("errors:")
-        lines.extend(errors)
-    else:
-        lines.append("status: OK")
-    return not errors, "\n".join(lines)
+    return True, f"Setup OK: {prefs.agent_provider} / {model}"
 
 
 def _validate_agent_configuration(prefs) -> list[str]:
@@ -631,11 +629,10 @@ def _poll_agent_process() -> float | None:
     if _AGENT_PROCESS is None:
         return None
     if _AGENT_PROCESS.poll() is None:
-        try:
-            props = bpy.context.scene.gn_ai_props
-            props.status = "NodeCue agent canceling..." if _AGENT_CANCEL_REQUESTED else "NodeCue agent running..."
-        except Exception:
-            pass
+        status = "NodeCue agent canceling..." if _AGENT_CANCEL_REQUESTED else "NodeCue agent running..."
+        for props in _each_scene_props():
+            props.status = status
+        _tag_view3d_redraw()
         return 1.0
 
     returncode = _AGENT_PROCESS.returncode
@@ -653,34 +650,47 @@ def _poll_agent_process() -> float | None:
         except Exception:
             stderr_text = ""
 
+    save_blend = False
     try:
-        props = bpy.context.scene.gn_ai_props
         prefs = bpy.context.preferences.addons[__package__].preferences
-        if report:
-            if returncode == 0 and prefs.agent_save_blend_copy:
-                blend_path, save_error = _save_agent_blend_copy(report)
-                if blend_path:
-                    report["blend_path"] = blend_path
-                    props.agent_blend_path = blend_path
-                if save_error:
-                    report["blend_save_error"] = save_error
-                if _AGENT_REPORT_PATH:
+        save_blend = bool(prefs.agent_save_blend_copy)
+    except Exception:
+        pass
+
+    blend_path_value = ""
+    if report:
+        if returncode == 0 and save_blend:
+            blend_path, save_error = _save_agent_blend_copy(report)
+            if blend_path:
+                report["blend_path"] = blend_path
+                blend_path_value = blend_path
+            if save_error:
+                report["blend_save_error"] = save_error
+            if _AGENT_REPORT_PATH:
+                try:
                     _AGENT_REPORT_PATH.write_text(
                         json.dumps(report, ensure_ascii=False, indent=2),
                         encoding="utf-8",
                     )
-            props.agent_output = _summarize_agent_report(report)
-            if _AGENT_CANCEL_REQUESTED:
-                props.status = "NodeCue agent canceled"
-            else:
-                props.status = "NodeCue agent finished" if returncode == 0 else "NodeCue agent finished with issues"
+                except Exception:
+                    pass
+        output = _summarize_agent_report(report)
+        if _AGENT_CANCEL_REQUESTED:
+            status = "NodeCue agent canceled"
         else:
-            props.agent_output = stderr_text or f"Sidecar exited with code {returncode}"
-            props.status = "NodeCue agent canceled" if _AGENT_CANCEL_REQUESTED else "NodeCue agent failed"
+            status = "NodeCue agent finished" if returncode == 0 else "NodeCue agent finished with issues"
+    else:
+        output = stderr_text or f"Sidecar exited with code {returncode}"
+        status = "NodeCue agent canceled" if _AGENT_CANCEL_REQUESTED else "NodeCue agent failed"
+
+    for props in _each_scene_props():
+        props.agent_output = output
+        props.status = status
+        if blend_path_value:
+            props.agent_blend_path = blend_path_value
         if _AGENT_REPORT_PATH:
             props.agent_report_path = str(_AGENT_REPORT_PATH)
-    except Exception:
-        pass
+    _tag_view3d_redraw()
 
     _AGENT_PROCESS = None
     _AGENT_CANCEL_REQUESTED = False
@@ -693,10 +703,9 @@ def _poll_deps_process() -> float | None:
     if _DEPS_PROCESS is None:
         return None
     if _DEPS_PROCESS.poll() is None:
-        try:
-            bpy.context.scene.gn_ai_props.status = "Installing sidecar dependencies..."
-        except Exception:
-            pass
+        for props in _each_scene_props():
+            props.status = "Installing sidecar dependencies..."
+        _tag_view3d_redraw()
         return 1.0
 
     returncode = _DEPS_PROCESS.returncode
@@ -707,16 +716,16 @@ def _poll_deps_process() -> float | None:
         except Exception:
             log_tail = ""
 
-    try:
-        props = bpy.context.scene.gn_ai_props
-        if returncode == 0:
-            props.status = "Sidecar dependencies installed"
-            props.agent_output = "Dependency install finished. Run Check Setup to verify."
-        else:
-            props.status = "Sidecar dependency install failed"
-            props.agent_output = log_tail or f"pip exited with code {returncode}"
-    except Exception:
-        pass
+    if returncode == 0:
+        status = "Sidecar dependencies installed"
+        output = "Dependency install finished."
+    else:
+        status = "Sidecar dependency install failed"
+        output = log_tail or f"pip exited with code {returncode}"
+    for props in _each_scene_props():
+        props.status = status
+        props.agent_output = output
+    _tag_view3d_redraw()
 
     _DEPS_PROCESS = None
     return None
@@ -798,14 +807,15 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
             (
                 "explain",
                 "Explain",
-                "Explain the active node group without changing it (read-only)",
+                "Explain the active object's Geometry Nodes group without changing it "
+                "(read-only; select the object, no node selection needed)",
             ),
         ),
         default="build",
     )
 
     def execute(self, context):
-        global _AGENT_PROCESS, _AGENT_REPORT_PATH, _AGENT_STDERR_PATH, _AGENT_ARTIFACT_DIR, _AGENT_CANCEL_REQUESTED
+        global _AGENT_PROCESS, _AGENT_REPORT_PATH, _AGENT_STDERR_PATH, _AGENT_ARTIFACT_DIR, _AGENT_CANCEL_REQUESTED, _AGENT_LAST_MODE
 
         props = context.scene.gn_ai_props
         prefs = context.preferences.addons[__package__].preferences
@@ -843,6 +853,7 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
         _AGENT_REPORT_PATH = artifact_dir / "report.json"
         _AGENT_STDERR_PATH = artifact_dir / "stderr.log"
         _AGENT_CANCEL_REQUESTED = False
+        _AGENT_LAST_MODE = self.agent_mode
         if _AGENT_REPORT_PATH.exists():
             _AGENT_REPORT_PATH.unlink()
         if _AGENT_STDERR_PATH.exists():
@@ -943,16 +954,18 @@ class GN_AI_OT_RunAgentPrototype(bpy.types.Operator):
 class GN_AI_OT_CheckAgentSetup(bpy.types.Operator):
     bl_idname = "gn_ai.check_agent_setup"
     bl_label = "Check Setup"
-    bl_description = "Check NodeCue SDK sidecar, provider, model, key, skill, and bridge setup"
+    bl_description = "Verify provider, model, API key, and sidecar dependencies"
 
     def execute(self, context):
-        props = context.scene.gn_ai_props
+        global _SETUP_STATUS
         prefs = context.preferences.addons[__package__].preferences
         ok, message = _agent_setup_report(prefs)
-        props.agent_output = message
-        props.status = "NodeCue setup OK" if ok else "NodeCue setup has issues"
-        self.report({"INFO"} if ok else {"ERROR"}, props.status)
-        return {"FINISHED" if ok else "CANCELLED"}
+        _SETUP_STATUS = message.splitlines()
+        self.report(
+            {"INFO"} if ok else {"ERROR"},
+            "NodeCue setup OK" if ok else "NodeCue setup has issues",
+        )
+        return {"FINISHED"} if ok else {"CANCELLED"}
 
 
 class GN_AI_OT_CancelAgentRun(bpy.types.Operator):
@@ -1030,8 +1043,6 @@ class GN_AI_PT_MainPanel(bpy.types.Panel):
         if not agent_deps.deps_installed(_deps_dir()):
             layout.operator("gn_ai.install_agent_deps", icon="IMPORT")
         row = layout.row(align=True)
-        row.operator("gn_ai.check_agent_setup", icon="CHECKMARK")
-        row = layout.row(align=True)
         build_op = row.operator("gn_ai.run_agent_prototype", text="Build", icon="PLAY")
         build_op.agent_mode = "build"
         explain_op = row.operator("gn_ai.run_agent_prototype", text="Explain", icon="QUESTION")
@@ -1043,11 +1054,13 @@ class GN_AI_PT_MainPanel(bpy.types.Panel):
             box.label(text="Agent Output")
             for line in props.agent_output.splitlines()[:24]:
                 box.label(text=line[:120])
-        if props.agent_report_path:
-            layout.label(text=f"Report: {props.agent_report_path}", icon="FILE_TEXT")
-        if props.agent_blend_path:
-            layout.label(text=f"Blend: {props.agent_blend_path}", icon="FILE_BLEND")
-        if _active_gn_node_group(context) is not None:
+        run_idle = _AGENT_PROCESS is None or _AGENT_PROCESS.poll() is not None
+        if (
+            run_idle
+            and _AGENT_LAST_MODE == "build"
+            and props.status.startswith("NodeCue agent finished")
+            and _active_gn_node_group(context) is not None
+        ):
             layout.operator("gn_ai.mark_result_asset", icon="ASSET_MANAGER")
         if props.status:
             layout.label(text=props.status, icon="INFO")

@@ -12,6 +12,10 @@
 - Artifacts renamed to Run Records with an explanation (report JSON + logs per run, attach to bug reports) and a stable default location under Blender's user scripts directory instead of the OS temp folder.
 - The Generate/Explain/Modify mode dropdown is gone. The panel now has two actions: `Build` (the agent decides from the prompt and scene whether to create a new tree or modify the active one) and `Explain` (strictly read-only). The sidecar keeps accepting explicit generate/modify modes for automated callers.
 - Dependency reinstall for a custom Sidecar Python is now a clearly labeled `Reinstall Dependencies` button in Advanced.
+- Check Setup moved from the side panel into the add-on preferences and its output shrank to one `Setup OK: provider / model` line (or a short error list). The panel no longer shows report/blend paths; run records live in the Run Records folder.
+- Fixed the status line staying on "running" after a run finished: the poll timer now updates scene properties through bpy.data (timer context often has no scene) and tags the 3D View for redraw.
+- `Mark Result as Asset` now appears only after a successful Build run instead of during or before runs.
+- The Explain tooltip clarifies its target: the active object's Geometry Nodes group, read-only, no node selection needed.
 
 - One-click `Install Agent Dependencies` in the panel and add-on preferences: sidecar packages install into a NodeCue-managed `nodecue-deps` folder using the sidecar Python (Blender's own Python by default). No manual virtualenv needed.
 - Sidecar runtime requirements now ship inside the add-on package (`nodecue/requirements-agent.txt`) and no longer include test-only packages.

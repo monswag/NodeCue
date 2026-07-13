@@ -74,8 +74,8 @@ The key is stored in Blender's preferences file in plain text and is passed to t
 
 ## 4. Run Check Setup
 
-1. Open the NodeCue panel in the 3D View sidebar.
-2. Run Check Setup and confirm it reports `status: OK`.
+1. Still in Add-on Preferences, press `Check Setup` (below the dependency status).
+2. Confirm it reports `Setup OK`.
 
 Sidecar Python/root, model tuning, artifact paths, and the local bridge port live under `Advanced` in the preferences and rarely need changes.
 
@@ -90,7 +90,7 @@ Create a teachable Geometry Nodes setup that displaces a grid terrain with noise
 The run should produce:
 
 - a Geometry Nodes graph in the current Blender file;
-- a report JSON path shown in the panel;
+- a report JSON in the Run Records folder (see Advanced preferences);
 - an optional saved `.blend` copy for manual review.
 
 Generated reports and saved `.blend` artifacts are local debugging aids. Do not commit them to Git.
@@ -100,6 +100,6 @@ Generated reports and saved `.blend` artifacts are local debugging aids. Do not 
 - If Check Setup cannot import `agents` or `openai`, press `Install Agent Dependencies` and wait for it to finish, then run Check Setup again.
 - If the model is missing, set `NODECUE_AGENT_MODEL` in `.env` or in Add-on Preferences.
 - If the API key is missing, confirm `OPENROUTER_API_KEY` exists in the selected `.env`.
-- If the bridge is stopped, press Start Bridge or run Check Setup again.
+- The local bridge starts automatically with each run; there is nothing to start manually.
 
 More detailed setup fixes are in [troubleshooting.md](troubleshooting.md).

@@ -7,7 +7,7 @@ The alpha is not scored by one perfect node graph. Good feedback should show whe
 ## Before Testing
 
 - Use Blender 5.0 or newer (most tested on 5.1).
-- Run Check Setup in the NodeCue panel.
+- Run Check Setup in the NodeCue add-on preferences.
 - Confirm your provider/model is configured.
 - Start from a simple scene unless the test says otherwise.
 - Keep the generated report JSON and saved `.blend` artifact if NodeCue creates one.
