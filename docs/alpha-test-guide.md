@@ -78,10 +78,13 @@ What to inspect:
 
 Install the standalone skill package, then ask Codex, Claude, or another external agent to solve Test 1 through a Blender MCP server (official Blender Lab MCP or community blender-mcp).
 
+Claude Code: `/plugin marketplace add monswag/nodecue-blender-node-skills`, then `/plugin install blender-node-skills@nodecue`.
+
+Codex and other agents:
+
 ```bash
 git clone https://github.com/monswag/nodecue-blender-node-skills.git
-cp -r nodecue-blender-node-skills/skills/geometry-nodes ~/.claude/skills/   # Claude Code
-# or ~/.codex/skills/ for Codex, or wherever your agent loads skills from
+cp -r nodecue-blender-node-skills/skills/geometry-nodes ~/.codex/skills/
 ```
 
 Compare:
