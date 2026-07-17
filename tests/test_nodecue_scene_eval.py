@@ -18,7 +18,7 @@ from tests.golden.run_nodecue_scene_eval import (
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tests" / "golden" / "run_nodecue_scene_eval.py"
 PATTERN_READBACK = (
-    ROOT / "nodecue" / "skills" / "geometry-nodes" / "evals" / "gn_pattern_readbacks.json"
+    ROOT / "tests" / "golden" / "skill_evals" / "gn_pattern_readbacks.json"
 )
 
 

@@ -10,7 +10,7 @@ RULES_DIR = ROOT / "nodecue" / "skills" / "geometry-nodes" / "rules"
 PATTERNS_DIR = ROOT / "nodecue" / "skills" / "geometry-nodes" / "patterns"
 SKILL_PATH = ROOT / "nodecue" / "skills" / "geometry-nodes" / "SKILL.md"
 PATTERN_READBACK_PATH = (
-    ROOT / "nodecue" / "skills" / "geometry-nodes" / "evals" / "gn_pattern_readbacks.json"
+    ROOT / "tests" / "golden" / "skill_evals" / "gn_pattern_readbacks.json"
 )
 
 NODE_RULE_PREFIXES = {
