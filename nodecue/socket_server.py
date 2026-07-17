@@ -22,11 +22,13 @@ from pathlib import Path
 from typing import Any
 
 log = logging.getLogger(__name__)
-# Package-relative so the KB and skill ship inside the addon zip and resolve
-# in every install layout (zip install, sibling install, dev repo).
+# Package-relative so the skill resolves in every install layout
+# (zip install, sibling install, dev repo).
 _PACKAGE_DIR = Path(__file__).resolve().parent
-_GN_KB_NODES_PATH = _PACKAGE_DIR / "gn_kb" / "nodes.json"
 _SKILL_RULES_DIR = _PACKAGE_DIR / "skills" / "geometry-nodes" / "rules"
+
+# Node-tree-capable types outside the GeometryNode/FunctionNode/ShaderNode prefixes.
+_EXTRA_NODE_TYPE_NAMES = ("NodeGroupInput", "NodeGroupOutput", "NodeFrame", "NodeReroute")
 _KNOWN_GN_NODE_CANDIDATES: list[dict[str, str]] | None = None
 
 # Lazy imports — only available inside Blender.
@@ -146,29 +148,41 @@ def _load_gn_node_candidates_from_rules() -> list[dict[str, str]]:
     return candidates
 
 
+def _load_gn_node_candidates_from_bpy() -> list[dict[str, str]]:
+    """Enumerate registered node types from the running Blender.
+
+    Always matches the user's actual Blender version, unlike any shipped
+    snapshot. Returns [] outside Blender so callers can fall back.
+    """
+    try:
+        bpy = _get_bpy()
+        type_names = [
+            name
+            for name in dir(bpy.types)
+            if name.startswith(("GeometryNode", "FunctionNode", "ShaderNode"))
+        ]
+        type_names.extend(_EXTRA_NODE_TYPE_NAMES)
+        candidates: list[dict[str, str]] = []
+        for type_name in type_names:
+            cls = getattr(bpy.types, type_name, None)
+            if cls is None:
+                continue
+            label = str(
+                getattr(getattr(cls, "bl_rna", None), "name", "")
+                or _humanize_bl_idname(type_name)
+            ).strip()
+            candidates.append({"bl_idname": type_name, "label": label})
+        return candidates
+    except Exception:
+        return []
+
+
 def _load_gn_node_candidates() -> list[dict[str, str]]:
     global _KNOWN_GN_NODE_CANDIDATES
     if _KNOWN_GN_NODE_CANDIDATES is not None:
         return _KNOWN_GN_NODE_CANDIDATES
 
-    candidates: list[dict[str, str]] = []
-    if _GN_KB_NODES_PATH.exists():
-        try:
-            data = json.loads(_GN_KB_NODES_PATH.read_text(encoding="utf-8"))
-            nodes = data["nodes"] if isinstance(data, dict) and "nodes" in data else data
-            for node in nodes:
-                bl_idname = str(node.get("bl_idname", "")).strip()
-                if not bl_idname:
-                    continue
-                label = str(
-                    node.get("node_name")
-                    or node.get("bl_label")
-                    or _humanize_bl_idname(bl_idname)
-                ).strip()
-                candidates.append({"bl_idname": bl_idname, "label": label})
-        except Exception:
-            log.exception("failed to load GN node candidates from %s", _GN_KB_NODES_PATH)
-
+    candidates = _load_gn_node_candidates_from_bpy()
     if not candidates:
         candidates = _load_gn_node_candidates_from_rules()
 
