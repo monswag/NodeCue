@@ -216,7 +216,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--agent-python",
-        default="/Users/sj/miniconda3/envs/blender/bin/python",
+        default=os.environ.get("NODECUE_AGENT_PYTHON", sys.executable),
     )
     parser.add_argument(
         "--blender-command",

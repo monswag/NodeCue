@@ -2,6 +2,8 @@
 
 NodeCue is a Blender add-on prototype for learning, building, modifying, and explaining Geometry Nodes with a focused local agent.
 
+> **Status: alpha, source-available.** No installable release has been published yet — the first packaged add-on zip is coming. Watch the repository to catch it. The standalone [Geometry Nodes skill](https://github.com/monswag/nodecue-blender-node-skills) is usable with external agents today.
+
 The current alpha is intentionally narrow:
 
 - Blender 5.0+ add-on package (most tested on 5.1): `nodecue/`
@@ -13,7 +15,7 @@ The Geometry Nodes skill is also maintained in the standalone `nodecue-blender-n
 
 ## Quick Start
 
-1. Download the NodeCue release zip, for example `nodecue-v0.1.0-alpha.14-blender-addon.zip`.
+1. Download the NodeCue release zip (once the first alpha release is published), for example `nodecue-v0.1.0-alpha.15-blender-addon.zip`.
 2. In Blender 5.0 or newer, open `Edit > Preferences > Add-ons > Install...`, select the zip, then enable `NodeCue`.
 3. In the NodeCue panel or add-on preferences, press `Install Agent Dependencies` and wait for `Sidecar dependencies installed` (downloads packages once; no terminal or virtualenv needed).
 4. In NodeCue preferences, pick a provider, set a model (for example `moonshotai/kimi-k2.6`), and paste your API key.
