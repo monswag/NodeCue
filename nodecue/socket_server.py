@@ -22,9 +22,11 @@ from pathlib import Path
 from typing import Any
 
 log = logging.getLogger(__name__)
-_REPO_ROOT = Path(__file__).resolve().parents[1]
-_GN_KB_NODES_PATH = _REPO_ROOT / "references" / "gn_kb" / "nodes.json"
-_SKILL_RULES_DIR = _REPO_ROOT / "nodecue" / "skills" / "geometry-nodes" / "rules"
+# Package-relative so the KB and skill ship inside the addon zip and resolve
+# in every install layout (zip install, sibling install, dev repo).
+_PACKAGE_DIR = Path(__file__).resolve().parent
+_GN_KB_NODES_PATH = _PACKAGE_DIR / "gn_kb" / "nodes.json"
+_SKILL_RULES_DIR = _PACKAGE_DIR / "skills" / "geometry-nodes" / "rules"
 _KNOWN_GN_NODE_CANDIDATES: list[dict[str, str]] | None = None
 
 # Lazy imports — only available inside Blender.

@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NODES_PATH = ROOT / "references" / "gn_kb" / "nodes.json"
+NODES_PATH = ROOT / "nodecue" / "gn_kb" / "nodes.json"
 RULES_DIR = ROOT / "nodecue" / "skills" / "geometry-nodes" / "rules"
 PATTERNS_DIR = ROOT / "nodecue" / "skills" / "geometry-nodes" / "patterns"
 SKILL_PATH = ROOT / "nodecue" / "skills" / "geometry-nodes" / "SKILL.md"

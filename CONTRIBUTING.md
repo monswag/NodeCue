@@ -35,7 +35,7 @@ For alpha feedback, include:
 
 Do not include API keys or private asset-library paths.
 
-Maintainers can use [docs/alpha-feedback-triage.md](docs/alpha-feedback-triage.md) to label and route alpha reports.
+Maintainers label and route alpha reports using the internal triage guide.
 
 ## Pull Request Checklist
 

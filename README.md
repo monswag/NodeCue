@@ -34,8 +34,6 @@ The output zip is installable through Blender's normal add-on installer.
 
 Pushing a `v*` tag creates a draft GitHub Release with the same Blender add-on zip attached.
 
-Before making the repositories public, use [docs/release-checklist.md](docs/release-checklist.md).
-
 ## External Agents
 
 Codex, Claude, and other agents can use the standalone Geometry Nodes skill with Blender's official MCP server (Blender Lab) or the community blender-mcp project. External agents do not need to route through the NodeCue bridge unless they specifically want NodeCue-maintained helper data.
