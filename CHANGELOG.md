@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Blender 5.2 support (skill v0.6, from live readback on 5.2.0 LTS): 36 new node entries with Version/Evidence metadata; the removed `GeometryNodeList` replaced by Field to List / Closure to List; generic list sockets and geometry bundles added to the mental model; Compare / Random Value carry compatibility notes (5.2 changed socket identifiers - resolve via readback); Version Awareness rules gate 5.2-only nodes on older Blenders.
+- `create_node_tree` accepts Empty objects on Blender 5.2+ (5.2 allows Geometry Nodes modifiers on Empties), suiting Generate-mode graphs.
+- Node-type enumeration filters out abstract base types.
+
 - Preferences reorganized around what a first-time user needs: Provider, Model, API Key, and dependency install; sidecar paths, model tuning, artifacts, Env File, and the bridge port moved into a collapsed Advanced section. The Mock provider is gone from the UI.
 - New `API Key` field (password-style). Priority when a key exists in several places: OS environment, then the API Key field, then the Env File. The key reaches the sidecar only via environment variables — never on the command line, never in reports.
 - The local bridge no longer has Start/Stop buttons; it starts automatically with agent runs. It remains the internal transport between the sidecar and Blender.

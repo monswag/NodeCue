@@ -156,10 +156,13 @@ def _load_gn_node_candidates_from_bpy() -> list[dict[str, str]]:
     """
     try:
         bpy = _get_bpy()
+        base_names = {"GeometryNode", "FunctionNode", "ShaderNode", "ShaderNodeCustomGroup"}
         type_names = [
             name
             for name in dir(bpy.types)
             if name.startswith(("GeometryNode", "FunctionNode", "ShaderNode"))
+            and name not in base_names
+            and not name.endswith("Tree")
         ]
         type_names.extend(_EXTRA_NODE_TYPE_NAMES)
         candidates: list[dict[str, str]] = []
@@ -635,8 +638,11 @@ def _cmd_create_node_tree(params: dict) -> dict:
         bpy.ops.mesh.primitive_plane_add()
         obj = bpy.context.active_object
 
-    if obj.type != "MESH":
-        return {"error": f"active object type is {obj.type}, expected MESH"}
+    # Blender 5.2 allows Geometry Nodes modifiers on Empty objects, which
+    # suits Generate-mode graphs that create geometry from scratch.
+    empty_ok = obj.type == "EMPTY" and bpy.app.version >= (5, 2, 0)
+    if obj.type != "MESH" and not empty_ok:
+        return {"error": f"active object type is {obj.type}, expected MESH (or EMPTY on Blender 5.2+)"}
 
     tree = bpy.data.node_groups.new(name, "GeometryNodeTree")
 

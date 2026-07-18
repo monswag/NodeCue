@@ -128,6 +128,12 @@ def test_socket_types_used_in_rules_are_known():
         "UNKNOWN",
         "SDF",
         "CUSTOM",
+        # New socket types introduced by Blender 5.2
+        "BUNDLE",
+        "CLOSURE",
+        "FONT",
+        "INT_VECTOR",
+        "SOUND",
     }
 
     used = set()
