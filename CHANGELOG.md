@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Blender 5.2 support (skill v0.6, from live readback on 5.2.0 LTS): 36 new node entries with Version/Evidence metadata; the removed `GeometryNodeList` replaced by Field to List / Closure to List; generic list sockets and geometry bundles added to the mental model; Compare / Random Value carry compatibility notes (5.2 changed socket identifiers - resolve via readback); Version Awareness rules gate 5.2-only nodes on older Blenders.
+- Blender 5.2 support (skill v0.6, from live readback on Blender 5.2): 36 new node entries with Version/Evidence metadata; `GeometryNodeList` version-bounded to Blender 5.0-5.1 (removed in 5.2; use Field to List / Closure to List there); generic list sockets and geometry bundles added to the mental model; Compare / Random Value carry compatibility notes (5.2 changed socket identifiers - resolve via readback); Version Awareness rules gate 5.2-only nodes on older Blenders.
 - `create_node_tree` accepts Empty objects on Blender 5.2+ (5.2 allows Geometry Nodes modifiers on Empties), suiting Generate-mode graphs.
 - Node-type enumeration filters out abstract base types.
 

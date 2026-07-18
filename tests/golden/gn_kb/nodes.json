@@ -22052,6 +22052,47 @@
    "co_occurrence_nodes": [],
    "confidence": "live-readback",
    "reason": "Added from Blender 5.2.0 live readback (build fbe6228777e7)"
+  },
+  {
+   "node_name": "List",
+   "bl_idname": "GeometryNodeList",
+   "bl_label": "List",
+   "bl_description": "Create a list of values",
+   "description": "List node.",
+   "inputs": [
+    {
+     "name": "Count",
+     "type": "INT",
+     "description": "",
+     "display_shape": "LINE",
+     "field_status": "VALUE",
+     "default_value": 1
+    },
+    {
+     "name": "Value",
+     "type": "VALUE",
+     "description": "",
+     "display_shape": "DIAMOND",
+     "field_status": "FIELD",
+     "default_value": 0.0
+    }
+   ],
+   "outputs": [
+    {
+     "name": "List",
+     "type": "VALUE",
+     "description": "",
+     "display_shape": "LIST",
+     "field_status": "UNKNOWN",
+     "default_value": 0.0
+    }
+   ],
+   "source_manual": "",
+   "lexical_aliases": [
+    "List",
+    "GeometryNodeList"
+   ],
+   "reason": "Blender 5.0-5.1 only; removed in 5.2 (replaced by Field to List / Closure to List)"
   }
  ]
 }
